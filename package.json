@@ -1,0 +1,46 @@
+{
+  "name": "shadow",
+  "version": "1.0.0",
+  "description": "shadow tool to change daylight settings",
+  "type": "module",
+  "main": "src/index.js",
+  "scripts": {
+    "prepublishOnly": "vcmplugin build",
+    "start": "vcmplugin serve",
+    "preview": "vcmplugin preview",
+    "test": "vitest",
+    "coverage": "vitest run --coverage",
+    "lint": "eslint \"{src,tests}/**/*.{js,vue}\""
+  },
+  "author": "aservie@virtualcitysystems.de",
+  "license": "MIT",
+  "keywords": [
+    "vcmap",
+    "plugin"
+  ],
+  "files": [
+    "src/",
+    "dist/",
+    "plugin-assets/",
+    "LICENSE.md",
+    "README.md"
+  ],
+  "exports": {
+    ".": "./src/index.js",
+    "./dist": "./dist/index.js"
+  },
+  "repository": {
+    "url": "git@gitlab.virtualcitysystems.de:vcsuite/npm/vcmap/shadow.git"
+  },
+  "peerDependencies": {
+    "@vcmap-cesium/engine": "~1.1.2",
+    "@vcmap/core": "~5.0.0-rc.27",
+    "@vcmap/ui": "^5.0.0-rc.22",
+    "ol": "~7.2.2",
+    "vue": "~2.7.3",
+    "vuetify": "~2.6.7"
+  },
+  "devDependencies": {
+    "@vcmap/plugin-cli": "^2.1.4"
+  }
+}
