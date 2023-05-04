@@ -1,5 +1,5 @@
 {
-  "name": "shadow",
+  "name": "@vcmap/shadow",
   "version": "1.0.1",
   "description": "shadow tool to change daylight settings",
   "type": "module",
