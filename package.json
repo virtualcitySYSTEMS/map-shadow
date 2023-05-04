@@ -1,6 +1,6 @@
 {
   "name": "shadow",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "shadow tool to change daylight settings",
   "type": "module",
   "main": "src/index.js",
