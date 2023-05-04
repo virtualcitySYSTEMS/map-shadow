@@ -85,7 +85,7 @@ export default function shadowPlugin() {
         animateDay: 'Animate shadow over a day',
         animateYear: 'Animate shadow over a year',
         pause: 'Pause',
-        speed: 'speed',
+        speed: 'Speed',
         speedTooltip:
           'Determines the speed of animation by adjusting the interval (in minutes or days for each type of animation, respectively) between each frame.',
         length: 'length',
@@ -93,7 +93,6 @@ export default function shadowPlugin() {
         hours: 'hours',
         hoursFormat: 'hour of day (00 to 23)',
         minutesFormat: 'minutes of day (00 to 59)',
-        dateFormat: 'Date in format: ',
         days: 'days',
         units: 'units',
         toolState: {
@@ -117,7 +116,6 @@ export default function shadowPlugin() {
         hours: 'Stunden',
         hoursFormat: 'Stunden (00 bis 23)',
         minutesFormat: 'Minuten (00 bis 59)',
-        dateFormat: 'Datum im Format: ',
         days: 'Tagen',
         units: 'Maßeinheiten',
         toolState: {

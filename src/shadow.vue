@@ -1,40 +1,44 @@
 <template>
-  <v-sheet>
-    <v-container class="px-1 py-0 main">
-      <v-row no-gutters justify="space-between" align="center">
+  <v-container class="px-1 py-1 main">
+    <div class="d-flex pb-1">
+      <div class="d-flex w-full align-center">
         <VcsLabel html-for="time-slider">
           {{ $t('time') }}
         </VcsLabel>
-        <v-row no-gutters align="center" justify="end">
-          <VcsTooltip tooltip="hoursFormat">
-            <template #activator="{ on, attrs }">
-              <VcsTextField
-                :id="TIME_UNITS.hours"
-                v-bind="attrs"
-                v-on="on"
-                :value="hours"
-                @blur="setTime"
-                @keyup.enter="setTime"
-                class="time-input"
-                :rules="[validateHourInput]"
-              />:
-            </template>
-          </VcsTooltip>
-          <VcsTooltip tooltip="minutesFormat">
-            <template #activator="{ on, attrs }">
-              <VcsTextField
-                :id="TIME_UNITS.minutes"
-                v-bind="attrs"
-                v-on="on"
-                :value="minutes"
-                @blur="setTime"
-                @keyup.enter="setTime"
-                class="time-input"
-                :rules="[validateMinuteInput]"
-              />
-            </template>
-          </VcsTooltip>
-        </v-row>
+      </div>
+      <div class="d-flex w-full justify-end align-center">
+        <VcsTooltip tooltip="hoursFormat">
+          <template #activator="{ on, attrs }">
+            <VcsTextField
+              :id="TIME_UNITS.hours"
+              v-bind="attrs"
+              v-on="on"
+              :value="hours"
+              @blur="setTime"
+              @keyup.enter="setTime"
+              class="time-input"
+              :rules="[validateHourInput]"
+            />
+          </template>
+        </VcsTooltip>
+
+        :
+
+        <VcsTooltip tooltip="minutesFormat" class="pr-2">
+          <template #activator="{ on, attrs }">
+            <VcsTextField
+              :id="TIME_UNITS.minutes"
+              v-bind="attrs"
+              v-on="on"
+              :value="minutes"
+              @blur="setTime"
+              @keyup.enter="setTime"
+              class="time-input"
+              :rules="[validateMinuteInput]"
+            />
+          </template>
+        </VcsTooltip>
+
         <VcsButton
           v-if="state.animate"
           icon="mdi-pause-circle"
@@ -47,89 +51,79 @@
           @click="animateDay"
           tooltip="animateDay"
         />
-      </v-row>
+      </div>
+    </div>
+    <div class="py-1">
       <v-slider
         v-model="totalMinutes"
         class="slider"
+        dense
+        hide-details
         id="time-slider"
         :min="0"
         :max="24 * 60 - 1"
+        :step="0"
         :disabled="state.animate"
       />
-      <v-divider />
-      <v-row no-gutters justify="space-between" align="center">
-        <VcsLabel class="block" html-for="date">
-          {{ $t('date') }}
-        </VcsLabel>
-        <VcsTooltip :tooltip="$t('dateFormat') + dateFormatExample">
+    </div>
+    <v-divider />
+    <div class="d-flex py-1">
+      <VcsLabel class="w-full" html-for="date">
+        {{ $t('date') }}
+      </VcsLabel>
+      <VcsDatePicker v-model="date" :disabled="state.animate" />
+      <VcsButton
+        v-if="state.animate"
+        icon="mdi-pause-circle"
+        @click="stopAnimation"
+        tooltip="pause"
+      />
+      <VcsButton
+        v-else
+        icon="$vcsPlayCircle"
+        @click="animateYear"
+        tooltip="animateYear"
+      />
+    </div>
+    <v-divider />
+    <div class="d-flex py-1">
+      <VcsLabel class="w-full" html-for="speed-slider">
+        {{ $t('speed') }}
+        <VcsTooltip tooltip="speedTooltip" max-width="300">
           <template #activator="{ on, attrs }">
-            <v-icon size="small" v-bind="attrs" v-on="on">
+            <v-icon
+              size="small"
+              v-bind="{ ...$attrs, ...attrs }"
+              v-on="{ ...$listeners, ...on }"
+            >
               mdi-help-circle
             </v-icon>
           </template>
         </VcsTooltip>
-        <v-row no-gutters align="center" justify="end">
-          <v-col sm="5">
-            <VcsDatePicker v-model="date" :disabled="state.animate" />
-          </v-col>
-          <VcsButton
-            v-if="state.animate"
-            icon="mdi-pause-circle"
-            @click="stopAnimation"
-            tooltip="pause"
-          />
-          <VcsButton
-            v-else
-            icon="$vcsPlayCircle"
-            @click="animateYear"
-            tooltip="animateYear"
-          />
-        </v-row>
-      </v-row>
-      <v-divider />
-      <v-row no-gutters justify="space-between" align="center">
-        <VcsLabel html-for="speed-slider" class="mt-3">
-          {{ $t('speed') }}
-          <VcsTooltip tooltip="speedTooltip" max-width="300">
-            <template #activator="{ on, attrs }">
-              <v-icon
-                size="small"
-                v-bind="{ ...$attrs, ...attrs }"
-                v-on="{ ...$listeners, ...on }"
-              >
-                mdi-help-circle
-              </v-icon>
-            </template>
-          </VcsTooltip>
-        </VcsLabel>
-        <h5 class="text">
-          {{ state.speed }}
-        </h5>
-      </v-row>
+      </VcsLabel>
+      <VcsLabel>
+        {{ state.speed }}
+      </VcsLabel>
+    </div>
+    <div class="py-1 pb-2">
       <v-slider
         v-model="state.speed"
         class="slider"
         id="speed-slider"
         ticks="always"
+        dense
+        hide-details
         step="1"
         :min="1"
         :max="10"
         tick-size="2"
       />
-    </v-container>
-  </v-sheet>
+    </div>
+  </v-container>
 </template>
 
 <script>
-  import {
-    VSheet,
-    VContainer,
-    VRow,
-    VSlider,
-    VCol,
-    VDivider,
-    VIcon,
-  } from 'vuetify/lib';
+  import { VContainer, VSlider, VDivider, VIcon } from 'vuetify/lib';
   import {
     VcsLabel,
     VcsButton,
@@ -155,14 +149,11 @@
   export default {
     name: 'ShadowToggle',
     components: {
-      VSheet,
       VContainer,
       VSlider,
-      VRow,
       VcsLabel,
       VcsButton,
       VcsDatePicker,
-      VCol,
       VDivider,
       VcsTextField,
       VcsTooltip,
@@ -173,9 +164,6 @@
       const cesiumWidget = app.maps.activeMap.getCesiumWidget();
       const { clock } = cesiumWidget;
       const { state } = app.plugins.getByKey(name);
-      const dateFormatExample = new Intl.DateTimeFormat(app.locale).format(
-        new Date(Date.UTC(2023, 0, 20)),
-      );
 
       const localJulianDate = ref(clock.currentTime);
       const setLocalJulianDate = (nv) => {
@@ -307,7 +295,6 @@
         state,
         hours,
         minutes,
-        dateFormatExample,
         TIME_UNITS,
         animateDay,
         animateYear,
@@ -321,16 +308,6 @@
 </script>
 
 <style scoped>
-  .main {
-    margin: 0.5rem 0;
-    min-height: 16.5rem;
-  }
-  .text {
-    padding-right: 4px;
-  }
-  .slider {
-    height: 3rem;
-  }
   .time-input {
     width: 2rem;
     font-weight: bold;
