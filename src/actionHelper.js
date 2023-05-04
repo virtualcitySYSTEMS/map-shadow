@@ -43,7 +43,7 @@ export default function setupToolActions(app, state) {
     icon: '$vcsShadow',
     active: false,
     background: false,
-
+    disabled: false,
     callback() {
       if (this.active) {
         if (this.background) {

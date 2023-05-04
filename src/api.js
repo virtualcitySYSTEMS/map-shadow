@@ -7,7 +7,7 @@ import { TIME_UNITS } from './constants.js';
  * @param {import("@vcmap-cesium/engine").JulianDate} timeOnClose
  * @returns {Object{originalTime: import("@vcmap-cesium/engine").JulianDate}}
  */
-export const activateShadow = (app, timeOnClose) => {
+export function activateShadow(app, timeOnClose) {
   const cesiumWidget = app.maps.activeMap.getCesiumWidget();
   const { clock } = cesiumWidget;
   const originalTime = Object.assign(clock.currentTime);
@@ -16,27 +16,27 @@ export const activateShadow = (app, timeOnClose) => {
     clock.currentTime = timeOnClose;
   }
   return { originalTime };
-};
+}
 
-export const deactivateShadow = (app, originalTime) => {
+export function deactivateShadow(app, originalTime) {
   const cesiumWidget = app.maps.activeMap.getCesiumWidget();
   cesiumWidget.scene.shadowMap.enabled = false;
   const timeOnClose = cesiumWidget.clock.currentTime;
   cesiumWidget.clock.currentTime = originalTime;
   return { timeOnClose };
-};
+}
 
-export const validateHourInput = (nv) => {
+export function validateHourInput(nv) {
   const number = Number(nv);
   return Number.isInteger(number) && number <= 23 && number >= 0;
-};
+}
 
-export const validateMinuteInput = (nv) => {
+export function validateMinuteInput(nv) {
   const number = Number(nv);
   return Number.isInteger(number) && number <= 59 && number >= 0;
-};
+}
 
-export const getNextTime = (startTime, playSpeed, timeUnit) => {
+export function getNextTime(startTime, playSpeed, timeUnit) {
   const newDate = new JulianDate();
   if (timeUnit === TIME_UNITS.hours) {
     JulianDate.addMinutes(startTime, playSpeed, newDate);
@@ -46,23 +46,27 @@ export const getNextTime = (startTime, playSpeed, timeUnit) => {
     return newDate;
   }
   throw new Error('invalid time unit provided');
-};
+}
 
-export const shouldAdvance = (startTime, end) =>
-  JulianDate.compare(startTime, end) < 0;
+export function shouldAdvance(startTime, end) {
+  return JulianDate.compare(startTime, end) < 0;
+}
 
-export const getDateStringFromJulian = (julianDate) =>
-  JulianDate.toDate(julianDate).toISOString().substring(0, 10);
+export function getDateStringFromJulian(julianDate) {
+  return JulianDate.toDate(julianDate).toISOString().substring(0, 10);
+}
 
-export const getHoursFromJulian = (julianDate) =>
-  JulianDate.toDate(julianDate).getHours();
+export function getHoursFromJulian(julianDate) {
+  return JulianDate.toDate(julianDate).getHours();
+}
 
-export const getMinutesFromJulian = (julianDate) =>
-  JulianDate.toDate(julianDate).getMinutes();
+export function getMinutesFromJulian(julianDate) {
+  return JulianDate.toDate(julianDate).getMinutes();
+}
 
-export const getTotalMinutesFromJulian = (julianDate) => {
+export function getTotalMinutesFromJulian(julianDate) {
   return (
     JulianDate.toDate(julianDate).getHours() * 60 +
     JulianDate.toDate(julianDate).getMinutes()
   );
-};
+}

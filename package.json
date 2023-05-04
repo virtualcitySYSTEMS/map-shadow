@@ -37,15 +37,14 @@
     "url": "git@gitlab.virtualcitysystems.de:vcsuite/npm/vcmap/shadow.git"
   },
   "peerDependencies": {
-    "@vcmap-cesium/engine": "~1.1.2",
-    "@vcmap/core": "~5.0.0-rc.27",
-    "@vcmap/ui": "git+ssh://git@gitlab.virtualcitysystems.de:vcsuite/npm/vcmap/ui.git#main",
-    "ol": "~7.2.2",
+    "@vcmap-cesium/engine": "~2.3.1",
+    "@vcmap/core": "~5.0.0-rc.31",
+    "@vcmap/ui": "^5.0.0-rc.24",
     "vue": "~2.7.3",
     "vuetify": "~2.6.7"
   },
   "devDependencies": {
-    "@vcmap/plugin-cli": "^2.1.4",
+    "@vcmap/plugin-cli": "^2.1.8",
     "@vcsuite/eslint-config": "^3.0.3",
     "@vitest/coverage-c8": "^0.29.2",
     "eslint": "^8.38.0",
@@ -57,7 +56,8 @@
   },
   "prettier": "@vcsuite/eslint-config/prettier.js",
   "eslintIgnore": [
-    "node_modules"
+    "node_modules",
+    "*timestamp-*.mjs"
   ],
   "eslintConfig": {
     "root": true,

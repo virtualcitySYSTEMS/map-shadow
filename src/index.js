@@ -1,4 +1,5 @@
 import { ToolboxType } from '@vcmap/ui';
+import { CesiumMap } from '@vcmap/core';
 import { version, name } from '../package.json';
 import { TIME_UNITS, windowId } from './constants.js';
 import setupToolActions, { windowComponent } from './actionHelper.js';
@@ -23,6 +24,7 @@ export default function shadowPlugin() {
    * @property {import("@vcmap-cesium/engine").JulianDate} endDate julian date to end the animation
    * @property {Function} removeListener remove onTick listener
    */
+
   /**
    * @type {DefaultState}
    */
@@ -34,7 +36,6 @@ export default function shadowPlugin() {
     timeUnit: TIME_UNITS.days,
     endDate: null,
     removeListener: null,
-    destroy: null,
   };
 
   return {
@@ -45,18 +46,27 @@ export default function shadowPlugin() {
       return version;
     },
     state: defaultState,
-
-    initialize: async (vcsUiApp) => {
+    /**
+     * @param {import("@vcmap/ui").VcsUiApp} vcsUiApp
+     * @returns {Promise<void>}
+     */
+    async initialize(vcsUiApp) {
+      this._app = vcsUiApp;
       const { action, destroy } = setupToolActions(vcsUiApp, defaultState);
-      defaultState.destroy = () => {
-        destroy();
-        if (vcsUiApp.toolboxManager.has(name)) {
-          vcsUiApp.toolboxManager.remove(name);
-        }
-        if (vcsUiApp.windowManager.has(windowComponent.id)) {
-          vcsUiApp.windowManager.remove(windowComponent.id);
-        }
-      };
+      action.disabled = !(vcsUiApp.maps.activeMap instanceof CesiumMap);
+      this._destroyAction = destroy;
+      this._mapChangedListener = vcsUiApp.maps.mapActivated.addEventListener(
+        (map) => {
+          if (!(map instanceof CesiumMap)) {
+            if (this._app.windowManager.has(windowComponent.id)) {
+              this._app.windowManager.remove(windowComponent.id);
+            }
+            action.disabled = true;
+          } else {
+            action.disabled = false;
+          }
+        },
+      );
 
       vcsUiApp.toolboxManager.add(
         {
@@ -67,7 +77,6 @@ export default function shadowPlugin() {
         name,
       );
     },
-
     i18n: {
       en: {
         shadow: 'Shadow',
@@ -97,8 +106,8 @@ export default function shadowPlugin() {
         shadow: 'Schatten',
         date: 'Datum',
         time: 'Uhrzeit',
-        animateDay: 'Lebendiger Schatten über einen Tag',
-        animateYear: 'Lebendiger Schatten über ein Jahr',
+        animateDay: 'Schatten über einen Tag animieren',
+        animateYear: 'Schatten über ein Jahr animieren',
         pause: 'Pause',
         speed: 'Geschwindigkeit',
         speedTooltip:
@@ -121,8 +130,25 @@ export default function shadowPlugin() {
     destroy() {
       if (defaultState.removeListener) {
         defaultState.removeListener();
+        defaultState.removeListener = null;
       }
-      defaultState.destroy();
+
+      if (this._app) {
+        if (this._app.toolboxManager.has(name)) {
+          this._app.toolboxManager.remove(name);
+        }
+        if (this._app.windowManager.has(windowComponent.id)) {
+          this._app.windowManager.remove(windowComponent.id);
+        }
+      }
+
+      if (this._destroyAction) {
+        this._destroyAction();
+      }
+
+      if (this._mapChangedListener) {
+        this._mapChangedListener();
+      }
     },
   };
 }

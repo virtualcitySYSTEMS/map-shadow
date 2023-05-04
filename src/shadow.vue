@@ -69,7 +69,7 @@
           </template>
         </VcsTooltip>
         <v-row no-gutters align="center" justify="end">
-          <v-col sm="4">
+          <v-col sm="5">
             <VcsDatePicker v-model="date" :disabled="state.animate" />
           </v-col>
           <VcsButton
@@ -168,7 +168,6 @@
       VcsTooltip,
       VIcon,
     },
-
     setup() {
       const app = inject('vcsApp');
       const cesiumWidget = app.maps.activeMap.getCesiumWidget();
