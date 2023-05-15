@@ -6,7 +6,7 @@
           {{ $t('time') }}
         </VcsLabel>
       </div>
-      <div class="d-flex w-full justify-end align-center">
+      <div class="d-flex w-full justify-end align-center pr-1">
         <VcsTooltip tooltip="hoursFormat">
           <template #activator="{ on, attrs }">
             <VcsTextField
@@ -33,7 +33,7 @@
               :value="minutes"
               @blur="setTime"
               @keyup.enter="setTime"
-              class="time-input"
+              class="time-input mr-2"
               :rules="[validateMinuteInput]"
             />
           </template>
@@ -50,6 +50,7 @@
           icon="$vcsPlayCircle"
           @click="animateDay"
           tooltip="animateDay"
+          small
         />
       </div>
     </div>
@@ -67,7 +68,7 @@
       />
     </div>
     <v-divider />
-    <div class="d-flex py-1">
+    <div class="d-flex py-1 pr-1 align-center">
       <VcsLabel class="w-full" html-for="date">
         {{ $t('date') }}
       </VcsLabel>
@@ -83,6 +84,7 @@
         icon="$vcsPlayCircle"
         @click="animateYear"
         tooltip="animateYear"
+        small
       />
     </div>
     <v-divider />
@@ -310,6 +312,5 @@
 <style scoped>
   .time-input {
     width: 2rem;
-    font-weight: bold;
   }
 </style>
