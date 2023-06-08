@@ -55,11 +55,8 @@
       </div>
     </div>
     <div class="py-1">
-      <v-slider
+      <VcsSlider
         v-model="totalMinutes"
-        class="slider"
-        dense
-        hide-details
         id="time-slider"
         :min="0"
         :max="24 * 60 - 1"
@@ -108,13 +105,10 @@
       </VcsLabel>
     </div>
     <div class="py-1 pb-2">
-      <v-slider
+      <VcsSlider
         v-model="state.speed"
-        class="slider"
         id="speed-slider"
         ticks="always"
-        dense
-        hide-details
         step="1"
         :min="1"
         :max="10"
@@ -125,13 +119,14 @@
 </template>
 
 <script>
-  import { VContainer, VSlider, VDivider, VIcon } from 'vuetify/lib';
+  import { VContainer, VDivider, VIcon } from 'vuetify/lib';
   import {
     VcsLabel,
     VcsButton,
     VcsDatePicker,
     VcsTextField,
     VcsTooltip,
+    VcsSlider,
   } from '@vcmap/ui';
   import { inject, computed, ref, onMounted } from 'vue';
   import { JulianDate } from '@vcmap-cesium/engine';
@@ -152,7 +147,6 @@
     name: 'ShadowToggle',
     components: {
       VContainer,
-      VSlider,
       VcsLabel,
       VcsButton,
       VcsDatePicker,
@@ -160,6 +154,7 @@
       VcsTextField,
       VcsTooltip,
       VIcon,
+      VcsSlider,
     },
     setup() {
       const app = inject('vcsApp');
