@@ -3,11 +3,11 @@
     <div class="d-flex pb-1">
       <div class="d-flex w-full align-center">
         <VcsLabel html-for="time-slider">
-          {{ $t('time') }}
+          {{ $t('shadow.time') }}
         </VcsLabel>
       </div>
       <div class="d-flex w-full justify-end align-center pr-1">
-        <VcsTooltip tooltip="hoursFormat">
+        <VcsTooltip tooltip="shadow.hoursFormat">
           <template #activator="{ on, attrs }">
             <VcsTextField
               :id="TIME_UNITS.hours"
@@ -43,13 +43,13 @@
           v-if="state.animate"
           icon="mdi-pause-circle"
           @click="stopAnimation"
-          tooltip="pause"
+          tooltip="shadow.pause"
         />
         <VcsButton
           v-else
           icon="$vcsPlayCircle"
           @click="animateDay"
-          tooltip="animateDay"
+          tooltip="shadow.animateDay"
           small
         />
       </div>
@@ -67,28 +67,28 @@
     <v-divider />
     <div class="d-flex py-1 pr-1 align-center">
       <VcsLabel class="w-full" html-for="date">
-        {{ $t('date') }}
+        {{ $t('shadow.date') }}
       </VcsLabel>
       <VcsDatePicker v-model="date" :disabled="state.animate" />
       <VcsButton
         v-if="state.animate"
         icon="mdi-pause-circle"
         @click="stopAnimation"
-        tooltip="pause"
+        tooltip="shadow.pause"
       />
       <VcsButton
         v-else
         icon="$vcsPlayCircle"
         @click="animateYear"
-        tooltip="animateYear"
+        tooltip="shadow.animateYear"
         small
       />
     </div>
     <v-divider />
     <div class="d-flex py-1">
       <VcsLabel class="w-full" html-for="speed-slider">
-        {{ $t('speed') }}
-        <VcsTooltip tooltip="speedTooltip" max-width="300">
+        {{ $t('shadow.speed') }}
+        <VcsTooltip tooltip="shadow.speedTooltip" max-width="300">
           <template #activator="{ on, attrs }">
             <v-icon
               size="small"

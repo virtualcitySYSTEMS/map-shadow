@@ -12,11 +12,11 @@ import { activateShadow, deactivateShadow } from './api.js';
 function getToggleTitle(action) {
   if (action?.active) {
     if (action?.background) {
-      return 'toolState.open';
+      return 'shadow.toolState.open';
     }
-    return 'toolState.deactivate';
+    return 'shadow.toolState.deactivate';
   }
-  return 'toolState.activate';
+  return 'shadow.toolState.activate';
 }
 /**
  *
@@ -27,7 +27,7 @@ export const windowComponent = {
   component: Shadow,
   slot: WindowSlot.DYNAMIC_LEFT,
   state: {
-    headerTitle: 'shadow',
+    headerTitle: 'shadow.shadow',
     headerIcon: '$vcsShadow',
   },
 };
@@ -39,7 +39,7 @@ export const windowComponent = {
 export default function setupToolActions(app, state) {
   const action = reactive({
     name: computed(() => getToggleTitle(this)),
-    title: 'toolState.open',
+    title: 'shadow.toolState.open',
     icon: '$vcsShadow',
     active: false,
     background: false,
