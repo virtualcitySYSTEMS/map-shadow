@@ -2,7 +2,7 @@ import { ToolboxType } from '@vcmap/ui';
 import { CesiumMap } from '@vcmap/core';
 import { version, name } from '../package.json';
 import { TIME_UNITS, windowId } from './constants.js';
-import setupToolActions, { windowComponent } from './actionHelper.js';
+import setupToolActions from './actionHelper.js';
 
 /**
  * @typedef {Object} PluginState
@@ -58,8 +58,8 @@ export default function shadowPlugin() {
       this._mapChangedListener = vcsUiApp.maps.mapActivated.addEventListener(
         (map) => {
           if (!(map instanceof CesiumMap)) {
-            if (this._app.windowManager.has(windowComponent.id)) {
-              this._app.windowManager.remove(windowComponent.id);
+            if (this._app.windowManager.has(windowId)) {
+              this._app.windowManager.remove(windowId);
             }
             action.disabled = true;
           } else {
@@ -139,8 +139,8 @@ export default function shadowPlugin() {
         if (this._app.toolboxManager.has(name)) {
           this._app.toolboxManager.remove(name);
         }
-        if (this._app.windowManager.has(windowComponent.id)) {
-          this._app.windowManager.remove(windowComponent.id);
+        if (this._app.windowManager.has(windowId)) {
+          this._app.windowManager.remove(windowId);
         }
       }
 

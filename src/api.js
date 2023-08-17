@@ -5,7 +5,7 @@ import { TIME_UNITS } from './constants.js';
  * initializes shadow and clockRange
  * @param {import("@vcmap/ui").VcsUiApp} app
  * @param {import("@vcmap-cesium/engine").JulianDate} timeOnClose
- * @returns {Object{originalTime: import("@vcmap-cesium/engine").JulianDate}}
+ * @returns {{originalTime: import("@vcmap-cesium/engine").JulianDate}}
  */
 export function activateShadow(app, timeOnClose) {
   const cesiumWidget = app.maps.activeMap.getCesiumWidget();

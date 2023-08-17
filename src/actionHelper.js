@@ -18,25 +18,28 @@ function getToggleTitle(action) {
   }
   return 'shadow.toolState.activate';
 }
-/**
- *
- * @type {import("@vcmap/ui").WindowComponentOptions}
- */
-export const windowComponent = {
-  id: windowId,
-  component: Shadow,
-  slot: WindowSlot.DYNAMIC_LEFT,
-  state: {
-    headerTitle: 'shadow.shadow',
-    headerIcon: '$vcsShadow',
-  },
-};
+
 /**
  * @param {import("@vcmap/ui").VcsUiApp} app
  * @param {Object} state
  * @returns {function():void}
  */
 export default function setupToolActions(app, state) {
+  /**
+   *
+   * @type {import("@vcmap/ui").WindowComponentOptions}
+   */
+  const windowComponent = {
+    id: windowId,
+    component: Shadow,
+    slot: WindowSlot.DYNAMIC_LEFT,
+    state: {
+      headerTitle: 'shadow.shadow',
+      headerIcon: '$vcsShadow',
+      infoUrlCallback: app.getHelpUrlCallback('/tools/shadowTool.html'),
+    },
+  };
+
   const action = reactive({
     name: computed(() => getToggleTitle(this)),
     title: 'shadow.toolState.open',
