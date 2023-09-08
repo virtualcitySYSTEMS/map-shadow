@@ -77,6 +77,15 @@ export default function shadowPlugin() {
         name,
       );
     },
+    toJSON() {
+      return {};
+    },
+    getDefaultOptions() {
+      return {};
+    },
+    getConfigEditors() {
+      return [];
+    },
     i18n: {
       en: {
         shadow: {

@@ -24,7 +24,7 @@
 
         :
 
-        <VcsTooltip tooltip="minutesFormat" class="pr-2">
+        <VcsTooltip tooltip="shadow.minutesFormat" class="pr-2">
           <template #activator="{ on, attrs }">
             <VcsTextField
               :id="TIME_UNITS.minutes"
