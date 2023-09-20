@@ -1,3 +1,8 @@
+# v1.0.6
+
+- updated to latest dependencies
+- added mapVersion to interface
+
 # v1.0.5
 
 - update plugin interface: toJSON, getDefaultOptions and getConfigEditors

@@ -1,6 +1,6 @@
 import { ToolboxType } from '@vcmap/ui';
 import { CesiumMap } from '@vcmap/core';
-import { version, name } from '../package.json';
+import { version, name, mapVersion } from '../package.json';
 import { TIME_UNITS, windowId } from './constants.js';
 import setupToolActions from './actionHelper.js';
 
@@ -44,6 +44,9 @@ export default function shadowPlugin() {
     },
     get version() {
       return version;
+    },
+    get mapVersion() {
+      return mapVersion;
     },
     state: defaultState,
     /**

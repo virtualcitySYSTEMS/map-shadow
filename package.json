@@ -1,6 +1,7 @@
 {
   "name": "@vcmap/shadow",
   "version": "1.0.5",
+  "mapVersion": "^5.0.0",
   "description": "shadow tool to change daylight settings",
   "type": "module",
   "main": "src/index.js",
@@ -18,7 +19,7 @@
     "lint": "npm run lint:js && npm run lint:prettier",
     "format": "prettier --write --list-different . && npm run lint:js -- --fix"
   },
-  "author": "aservie@virtualcitysystems.de",
+  "author": "virtualcitysystems GmbH",
   "license": "MIT",
   "keywords": [
     "vcmap",
@@ -39,14 +40,14 @@
     "url": "git@gitlab.virtualcitysystems.de:vcsuite/npm/vcmap/shadow.git"
   },
   "peerDependencies": {
-    "@vcmap-cesium/engine": "~2.4.3",
-    "@vcmap/core": "^5.0.0-rc.37",
-    "@vcmap/ui": "^5.0.0-rc.29",
+    "@vcmap-cesium/engine": "^4.0.0",
+    "@vcmap/core": "^5.0.0",
+    "@vcmap/ui": "^5.0.0",
     "vue": "~2.7.3",
     "vuetify": "~2.6.7"
   },
   "devDependencies": {
-    "@vcmap/plugin-cli": "^2.1.11",
+    "@vcmap/plugin-cli": "^2.1.12",
     "@vcsuite/eslint-config": "^3.0.3",
     "@vitest/coverage-c8": "^0.31.1",
     "eslint": "^8.38.0",
