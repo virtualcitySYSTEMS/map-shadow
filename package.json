@@ -1,7 +1,7 @@
 {
   "name": "@vcmap/shadow",
-  "version": "1.0.7",
-  "mapVersion": "^5.0.0",
+  "version": "2.0.0-rc.0",
+  "mapVersion": "^5.1.0",
   "description": "shadow tool to change daylight settings",
   "type": "module",
   "main": "src/index.js",
@@ -42,10 +42,14 @@
   },
   "peerDependencies": {
     "@vcmap-cesium/engine": "^4.0.0",
-    "@vcmap/core": "^5.0.0",
-    "@vcmap/ui": "^5.0.0",
+    "@vcmap/core": "^5.1.0-rc.2",
+    "@vcmap/ui": "^5.1.0-rc.2",
     "vue": "~2.7.3",
     "vuetify": "~2.6.7"
+  },
+  "overrides": {
+    "@vcmap/core": "^5.1.0-rc.2",
+    "@vcmap/ui": "^5.1.0-rc.2"
   },
   "devDependencies": {
     "@vcmap/plugin-cli": "^2.1.12",

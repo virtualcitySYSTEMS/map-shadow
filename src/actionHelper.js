@@ -40,6 +40,8 @@ export default function setupToolActions(app, state) {
     },
   };
 
+  let deactivateShadowWindow = () => {};
+
   const action = reactive({
     name: computed(() => getToggleTitle(this)),
     title: 'shadow.toolState.open',
@@ -52,16 +54,17 @@ export default function setupToolActions(app, state) {
         if (this.background) {
           app.windowManager.add(windowComponent, pluginName);
         } else {
-          state.removeListener();
-          state.removeListener = null;
-          app.windowManager.remove(windowComponent.id);
-          const { timeOnClose } = deactivateShadow(app, state.originalTime);
-          state.timeOnClose = timeOnClose;
-          this.active = false;
+          deactivateShadowWindow();
         }
         this.background = false;
       } else {
-        const { originalTime } = activateShadow(app, state.timeOnClose);
+        const { originalTime, shadowMap, destroy } = activateShadow(
+          app,
+          state.timeOnClose,
+          deactivateShadowWindow,
+        );
+        state.destroyShadowMapChangedListener = destroy;
+        state.shadowMap = shadowMap;
         if (!state.originalTime) {
           state.originalTime = originalTime;
         }
@@ -70,6 +73,26 @@ export default function setupToolActions(app, state) {
       }
     },
   });
+
+  deactivateShadowWindow = () => {
+    if (state.removeListener) {
+      state.removeListener();
+      state.removeListener = null;
+    }
+    if (state.destroyShadowMapChangedListener) {
+      state.destroyShadowMapChangedListener();
+      state.destroyShadowMapChangedListener = null;
+    }
+    app.windowManager.remove(windowComponent.id);
+    const { timeOnClose } = deactivateShadow(
+      app,
+      state.shadowMap,
+      state.originalTime,
+    );
+    state.shadowMap = null;
+    state.timeOnClose = timeOnClose;
+    action.active = false;
+  };
 
   const listeners = [
     app.windowManager.added.addEventListener(({ id }) => {
@@ -88,6 +111,12 @@ export default function setupToolActions(app, state) {
   ];
 
   const destroy = () => {
+    if (state.removeListener) {
+      state.removeListener();
+    }
+    if (state.destroyShadowMapChangedListener) {
+      state.destroyShadowMapChangedListener();
+    }
     listeners.forEach((cb) => cb());
   };
 

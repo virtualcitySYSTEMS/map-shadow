@@ -5,22 +5,32 @@ import { TIME_UNITS } from './constants.js';
  * initializes shadow and clockRange
  * @param {import("@vcmap/ui").VcsUiApp} app
  * @param {import("@vcmap-cesium/engine").JulianDate} timeOnClose
- * @returns {{originalTime: import("@vcmap-cesium/engine").JulianDate}}
+ * @param {()=>void} closeCallback
+ * @returns {{originalTime: import("@vcmap-cesium/engine").JulianDate, shadowMap: import("@vcmap-cesium/engine").ShadowMap, destroy: function():void}}
  */
-export function activateShadow(app, timeOnClose) {
+export function activateShadow(app, timeOnClose, closeCallback) {
+  app.maps.activeMap.setDefaultShadowMap();
   const cesiumWidget = app.maps.activeMap.getCesiumWidget();
   const { clock } = cesiumWidget;
   const originalTime = Object.assign(clock.currentTime);
-  app.maps.activeMap.getScene().shadowMap.enabled = true;
+  const { shadowMap } = app.maps.activeMap.getScene();
+  shadowMap.enabled = true;
   if (timeOnClose) {
     clock.currentTime = timeOnClose;
   }
-  return { originalTime };
+  const shadowMapChangedListener =
+    app.maps.activeMap.shadowMapChanged.addEventListener(() => {
+      closeCallback();
+    });
+  const destroy = () => {
+    shadowMapChangedListener();
+  };
+  return { originalTime, shadowMap, destroy };
 }
 
-export function deactivateShadow(app, originalTime) {
+export function deactivateShadow(app, shadowMap, originalTime) {
   const cesiumWidget = app.maps.activeMap.getCesiumWidget();
-  cesiumWidget.scene.shadowMap.enabled = false;
+  shadowMap.enabled = false;
   const timeOnClose = cesiumWidget.clock.currentTime;
   cesiumWidget.clock.currentTime = originalTime;
   return { timeOnClose };

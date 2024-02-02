@@ -22,7 +22,9 @@ export default function shadowPlugin() {
    * @property {number} speed integer from 1 to 10 that controls speed of animation
    * @property {import("./constants").TIME_UNITS} timeUnit
    * @property {import("@vcmap-cesium/engine").JulianDate} endDate julian date to end the animation
-   * @property {Function} removeListener remove onTick listener
+   * @property {function():void} removeListener remove onTick listener
+   * @property {import("@vcmap-cesium/engine").ShadowMap} shadowMap cached ShadowMap
+   * @property {function():void} destroyShadowMapChangedListener destroys the shadowMapChangedListener
    */
 
   /**
@@ -36,6 +38,8 @@ export default function shadowPlugin() {
     timeUnit: TIME_UNITS.days,
     endDate: null,
     removeListener: null,
+    shadowMap: null,
+    destroyShadowMapChangedListener: null,
   };
 
   return {

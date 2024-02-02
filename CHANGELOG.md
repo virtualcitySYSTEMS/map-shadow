@@ -1,3 +1,8 @@
+# v2.00
+
+- updated to @vcmap/core and @vcmap/ui Version 5.1
+- use new ShadowMap Api, to make sure the shadowmap is only used by one tool.
+
 # v1.0.6
 
 - updated to latest dependencies
