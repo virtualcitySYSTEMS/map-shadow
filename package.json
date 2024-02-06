@@ -41,18 +41,14 @@
     "url": "git@gitlab.virtualcitysystems.de:vcsuite/npm/vcmap/shadow.git"
   },
   "peerDependencies": {
-    "@vcmap-cesium/engine": "^4.0.0",
-    "@vcmap/core": "^5.1.0-rc.2",
-    "@vcmap/ui": "^5.1.0-rc.2",
+    "@vcmap-cesium/engine": "^4.0.3",
+    "@vcmap/core": "^5.1.0",
+    "@vcmap/ui": "^5.1.0",
     "vue": "~2.7.3",
     "vuetify": "~2.6.7"
   },
-  "overrides": {
-    "@vcmap/core": "^5.1.0-rc.2",
-    "@vcmap/ui": "^5.1.0-rc.2"
-  },
   "devDependencies": {
-    "@vcmap/plugin-cli": "^2.1.12",
+    "@vcmap/plugin-cli": "^3.0.0",
     "@vcsuite/eslint-config": "^3.0.3",
     "@vitest/coverage-c8": "^0.31.1",
     "eslint": "^8.38.0",
