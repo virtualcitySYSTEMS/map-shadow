@@ -171,8 +171,11 @@
       const date = computed({
         get: () => getDateStringFromJulian(localJulianDate.value),
         set: (nv) => {
+          const [yyyy, mm, dd] = nv.split('-');
           const newDate = new Date(
-            ...nv.split('-'),
+            yyyy,
+            mm - 1,
+            dd,
             getHoursFromJulian(localJulianDate.value),
             getMinutesFromJulian(localJulianDate.value),
           );
