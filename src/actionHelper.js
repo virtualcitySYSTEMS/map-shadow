@@ -1,6 +1,6 @@
 import { WindowSlot } from '@vcmap/ui';
 import { reactive, computed } from 'vue';
-import Shadow from './shadow.vue';
+import Shadow from './shadowTool.vue';
 import { name as pluginName } from '../package.json';
 import { windowId } from './constants.js';
 import { activateShadow, deactivateShadow } from './api.js';
@@ -22,7 +22,7 @@ function getToggleTitle(action) {
 /**
  * @param {import("@vcmap/ui").VcsUiApp} app
  * @param {Object} state
- * @returns {function():void}
+ * @returns {{action: import("@vcmap/ui").VcsAction, destroy: () => void}}
  */
 export default function setupToolActions(app, state) {
   /**
@@ -43,20 +43,20 @@ export default function setupToolActions(app, state) {
   let deactivateShadowWindow = () => {};
 
   const action = reactive({
-    name: computed(() => getToggleTitle(this)),
+    name: computed(() => getToggleTitle(action)),
     title: 'shadow.toolState.open',
     icon: '$vcsShadow',
     active: false,
     background: false,
     disabled: false,
     callback() {
-      if (this.active) {
-        if (this.background) {
+      if (action.active) {
+        if (action.background) {
           app.windowManager.add(windowComponent, pluginName);
         } else {
           deactivateShadowWindow();
         }
-        this.background = false;
+        action.background = false;
       } else {
         const { originalTime, shadowMap, destroy } = activateShadow(
           app,
@@ -68,7 +68,7 @@ export default function setupToolActions(app, state) {
         if (!state.originalTime) {
           state.originalTime = originalTime;
         }
-        this.active = true;
+        action.active = true;
         app.windowManager.add(windowComponent, pluginName);
       }
     },

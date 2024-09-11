@@ -1,7 +1,7 @@
 {
   "name": "@vcmap/shadow",
-  "version": "2.0.2",
-  "mapVersion": "^5.1.0",
+  "version": "3.0.0-rc.0",
+  "mapVersion": "^6.0.0",
   "description": "shadow tool to change daylight settings",
   "type": "module",
   "main": "src/index.js",
@@ -41,27 +41,27 @@
     "url": "git@gitlab.virtualcitysystems.de:vcsuite/npm/vcmap/shadow.git"
   },
   "peerDependencies": {
-    "@vcmap-cesium/engine": "^4.0.3",
-    "@vcmap/core": "^5.1.0",
-    "@vcmap/ui": "^5.1.0",
-    "vue": "~2.7.3",
-    "vuetify": "~2.6.7"
+    "@vcmap-cesium/engine": "^11.0.2",
+    "@vcmap/core": "^6.0.0-rc.7",
+    "@vcmap/ui": "^6.0.0-rc.7",
+    "vue": "~3.4.27",
+    "vuetify": "^3.6.13"
   },
   "devDependencies": {
-    "@vcmap/plugin-cli": "^3.0.0",
-    "@vcsuite/eslint-config": "^3.0.3",
-    "@vitest/coverage-c8": "^0.31.1",
+    "@vcmap/plugin-cli": "^4.0.0-rc.4",
+    "@vcsuite/eslint-config": "^3.0.8",
+    "@vitest/coverage-v8": "^1.2.2",
     "eslint": "^8.38.0",
-    "jest-canvas-mock": "^2.4.0",
-    "jsdom": "^21.1.1",
-    "prettier": "^2.8.7",
+    "jest-canvas-mock": "^2.5.2",
+    "jsdom": "^24.0.0",
     "resize-observer-polyfill": "1.5.1",
-    "vitest": "^0.31.0"
+    "vitest": "^1.6.0"
   },
   "prettier": "@vcsuite/eslint-config/prettier.js",
   "eslintIgnore": [
     "node_modules",
-    "*timestamp-*.mjs"
+    "*timestamp-*.mjs",
+    "dist"
   ],
   "eslintConfig": {
     "root": true,

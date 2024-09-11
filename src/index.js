@@ -1,3 +1,4 @@
+import { reactive } from 'vue';
 import { ToolboxType } from '@vcmap/ui';
 import { CesiumMap } from '@vcmap/core';
 import { version, name, mapVersion } from '../package.json';
@@ -30,7 +31,7 @@ export default function shadowPlugin() {
   /**
    * @type {DefaultState}
    */
-  const defaultState = {
+  const defaultState = reactive({
     originalTime: null,
     timeOnClose: null,
     animate: false,
@@ -40,7 +41,7 @@ export default function shadowPlugin() {
     removeListener: null,
     shadowMap: null,
     destroyShadowMapChangedListener: null,
-  };
+  });
 
   return {
     get name() {
