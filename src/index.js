@@ -139,9 +139,9 @@ export default function shadowPlugin() {
           days: 'Tagen',
           units: 'Maßeinheiten',
           toolState: {
-            open: 'Shadow Tool Fenster öffnen',
-            activate: 'Shadow Tool aktivieren',
-            deactivate: 'Shadow Tool deaktivieren',
+            open: 'Schatten Tool Fenster öffnen',
+            activate: 'Schatten Tool aktivieren',
+            deactivate: 'Schatten Tool deaktivieren',
           },
         },
       },
