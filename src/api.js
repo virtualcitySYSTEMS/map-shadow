@@ -62,10 +62,6 @@ export function shouldAdvance(startTime, end) {
   return JulianDate.compare(startTime, end) < 0;
 }
 
-export function getDateStringFromJulian(julianDate) {
-  return JulianDate.toDate(julianDate).toISOString().substring(0, 10);
-}
-
 export function getHoursFromJulian(julianDate) {
   return JulianDate.toDate(julianDate).getHours();
 }

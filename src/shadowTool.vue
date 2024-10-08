@@ -67,7 +67,7 @@
         </VcsLabel>
       </v-col>
       <v-col class="d-flex v-col-5 align-center">
-        <VcsDatePicker :model-value="date" :disabled="state.animate" />
+        <VcsDatePicker v-model="date" :disabled="state.animate" />
         <VcsButton
           v-if="state.animate"
           icon="mdi-pause-circle"
@@ -144,7 +144,6 @@
   import {
     getNextTime,
     shouldAdvance,
-    getDateStringFromJulian,
     getTotalMinutesFromJulian,
     validateHourInput,
     validateMinuteInput,
@@ -167,17 +166,13 @@
   const helpSpeedIcon = ref();
 
   const date = computed({
-    get: () => getDateStringFromJulian(localJulianDate.value).toDate,
+    get: () => {
+      return JulianDate.toDate(localJulianDate.value);
+    },
     set: (nv) => {
-      const [yyyy, mm, dd] = nv.split('-');
-      const newDate = new Date(
-        yyyy,
-        mm - 1,
-        dd,
-        getHoursFromJulian(localJulianDate.value),
-        getMinutesFromJulian(localJulianDate.value),
-      );
-      setLocalJulianDate(JulianDate.fromDate(newDate));
+      nv.setHours(getHoursFromJulian(localJulianDate.value));
+      nv.setMinutes(getMinutesFromJulian(localJulianDate.value));
+      setLocalJulianDate(JulianDate.fromDate(nv));
     },
   });
 

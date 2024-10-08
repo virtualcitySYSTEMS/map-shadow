@@ -97,7 +97,7 @@ export default function shadowPlugin() {
     i18n: {
       en: {
         shadow: {
-          shadow: 'Shadow',
+          shadow: 'Simulate shadows',
           date: 'Date',
           time: 'Time',
           animateDay: 'Animate shadow over a day',
@@ -122,7 +122,7 @@ export default function shadowPlugin() {
       },
       de: {
         shadow: {
-          shadow: 'Schatten',
+          shadow: 'Schatten simulieren',
           date: 'Datum',
           time: 'Uhrzeit',
           animateDay: 'Schatten über einen Tag animieren',

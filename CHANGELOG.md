@@ -1,3 +1,7 @@
+# v3.0.0
+
+- updated to @vcmap/core and @vcmap/ui Version 6.0
+
 # v2.02
 
 - fixed a bug, where setting date jumped one month
