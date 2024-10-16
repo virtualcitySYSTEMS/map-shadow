@@ -25,7 +25,7 @@ export function activateShadow(app, timeOnClose, closeCallback) {
   const destroy = () => {
     shadowMapChangedListener();
   };
-  return { originalTime, shadowMap, destroy };
+  return { originalTime, shadowMap, destroy, clock };
 }
 
 export function deactivateShadow(app, shadowMap, originalTime) {
@@ -46,14 +46,29 @@ export function validateMinuteInput(nv) {
   return Number.isInteger(number) && number <= 59 && number >= 0;
 }
 
-export function getNextTime(startTime, playSpeed, timeUnit) {
-  const newDate = new JulianDate();
+export function getNextTime(
+  startAnimationTime,
+  startLocalJulianDate,
+  animationTime,
+  timeUnit,
+) {
+  const interDate = new Date();
+  const timeElapsed =
+    (interDate.getTime() - startAnimationTime.getTime()) / 1000;
   if (timeUnit === TIME_UNITS.hours) {
-    JulianDate.addMinutes(startTime, playSpeed, newDate);
-    return newDate;
+    const step = ((60 * 24) / animationTime) * timeElapsed;
+    return JulianDate.addMinutes(
+      startLocalJulianDate,
+      Math.ceil(step),
+      new JulianDate(),
+    );
   } else if (timeUnit === TIME_UNITS.days) {
-    JulianDate.addDays(startTime, playSpeed, newDate);
-    return newDate;
+    const step = (365 / animationTime) * timeElapsed;
+    return JulianDate.addDays(
+      startLocalJulianDate,
+      Math.ceil(step),
+      new JulianDate(),
+    );
   }
   throw new Error('invalid time unit provided');
 }

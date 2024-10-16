@@ -35,12 +35,13 @@ export default function shadowPlugin() {
     originalTime: null,
     timeOnClose: null,
     animate: false,
-    speed: 1,
+    speed: 10,
     timeUnit: TIME_UNITS.days,
     endDate: null,
     removeListener: null,
     shadowMap: null,
     destroyShadowMapChangedListener: null,
+    clock: null,
   });
 
   return {
@@ -103,9 +104,10 @@ export default function shadowPlugin() {
           animateDay: 'Animate shadow over a day',
           animateYear: 'Animate shadow over a year',
           pause: 'Pause',
-          speed: 'Speed',
+          speed: 'Animation time',
+          speedUnit: 'Second(s)',
           speedTooltip:
-            'Determines the speed of animation by adjusting the interval (in minutes or days for each type of animation, respectively) between each frame.',
+            'Determines the animation speed in seconds for an annual or daily loop',
           length: 'Length',
           for: 'for',
           hours: 'hours',
@@ -128,9 +130,10 @@ export default function shadowPlugin() {
           animateDay: 'Schatten über einen Tag animieren',
           animateYear: 'Schatten über ein Jahr animieren',
           pause: 'Pause',
-          speed: 'Geschwindigkeit',
+          speed: 'Animationsdauer',
+          speedUnit: 'Sekunde(n)',
           speedTooltip:
-            'Bestimmt die Geschwindigkeit der Animation durch das Verkleinern oder Vergrößern des Intervalls (Minuten bzw. Tage) zwischen den einzelnen Bildern der Animation.',
+            'Bestimmt die Animationsgeschwindigkeit in Sekunden für einen Jahres- bzw. Tagesdurchlauf',
           length: 'Länge',
           for: 'für',
           hours: 'Stunden',

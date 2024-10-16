@@ -106,8 +106,8 @@
       </v-col>
       <v-col class="d-flex justify-end align-center">
         <VcsLabel class="pr-0">
-          {{ state.speed }}
-        </VcsLabel>
+          {{ state.speed }} {{ $t('shadow.speedUnit') }}</VcsLabel
+        >
       </v-col>
     </v-row>
     <VcsSlider
@@ -115,7 +115,7 @@
       id="speed-slider"
       :step="1"
       :min="1"
-      :max="10"
+      :max="20"
       show-ticks="always"
       type="number"
     />
@@ -162,6 +162,9 @@
     localJulianDate.value = nv;
     clock.currentTime = nv;
   };
+
+  let startAnimationTime;
+  let startLocalJulianDate;
 
   const helpSpeedIcon = ref();
 
@@ -225,12 +228,13 @@
     state.removeListener = clock.onTick.addEventListener((newTime) => {
       if (state.animate) {
         if (shouldAdvance(localJulianDate.value, state.endDate)) {
-          const next = getNextTime(
-            localJulianDate.value,
+          const currentDate = getNextTime(
+            startAnimationTime,
+            startLocalJulianDate,
             state.speed,
             state.timeUnit,
           );
-          setLocalJulianDate(next);
+          setLocalJulianDate(currentDate);
         } else {
           stopAnimation();
         }
@@ -245,29 +249,31 @@
     });
   });
 
-  const animateDay = () => {
+  const prepAnimation = () => {
+    startAnimationTime = new Date();
+    startLocalJulianDate = JulianDate.clone(localJulianDate.value);
     state.animate = true;
+  };
+
+  const animateDay = () => {
+    prepAnimation();
     state.timeUnit = TIME_UNITS.hours;
-    const calculateEndDate = new JulianDate();
-    JulianDate.addDays(localJulianDate.value, 1, calculateEndDate);
-    state.endDate = state.endDate ?? calculateEndDate;
-    setLocalJulianDate.value = getNextTime(
+    const calculateEndDate = JulianDate.addDays(
       localJulianDate.value,
-      state.speed,
-      state.timeUnit,
+      1,
+      new JulianDate(),
     );
+    state.endDate = state.endDate ?? calculateEndDate;
   };
   const animateYear = () => {
-    state.animate = true;
+    prepAnimation();
     state.timeUnit = TIME_UNITS.days;
-    const calculateEndDate = new JulianDate();
-    JulianDate.addDays(localJulianDate.value, 365, calculateEndDate);
-    state.endDate = state.endDate ?? calculateEndDate;
-    setLocalJulianDate.value = getNextTime(
+    const calculateEndDate = JulianDate.addDays(
       localJulianDate.value,
-      state.speed,
-      state.timeUnit,
+      365,
+      new JulianDate(),
     );
+    state.endDate = state.endDate ?? calculateEndDate;
   };
   const setTime = (event) => {
     const { value, id } = event.target;

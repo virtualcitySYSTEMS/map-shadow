@@ -1,5 +1,7 @@
 # v3.0.0
 
+- Changed speed behaviour to animation time in seconds
+- fixed cleanup of shadow map on plugin destroy
 - updated to @vcmap/core and @vcmap/ui Version 6.0
 
 # v2.02

@@ -1,5 +1,6 @@
 import { WindowSlot } from '@vcmap/ui';
 import { reactive, computed } from 'vue';
+import { CesiumMap } from '@vcmap/core';
 import Shadow from './shadowTool.vue';
 import { name as pluginName } from '../package.json';
 import { windowId } from './constants.js';
@@ -57,15 +58,16 @@ export default function setupToolActions(app, state) {
           deactivateShadowWindow();
         }
         action.background = false;
-      } else {
-        const { originalTime, shadowMap, destroy } = activateShadow(
+      } else if (app.maps.activeMap instanceof CesiumMap) {
+        const { originalTime, shadowMap, destroy, clock } = activateShadow(
           app,
           state.timeOnClose,
           deactivateShadowWindow,
         );
         state.destroyShadowMapChangedListener = destroy;
         state.shadowMap = shadowMap;
-        if (!state.originalTime) {
+        state.clock = clock;
+        if (!state.originalTime && originalTime) {
           state.originalTime = originalTime;
         }
         action.active = true;
@@ -84,13 +86,17 @@ export default function setupToolActions(app, state) {
       state.destroyShadowMapChangedListener = null;
     }
     app.windowManager.remove(windowComponent.id);
-    const { timeOnClose } = deactivateShadow(
-      app,
-      state.shadowMap,
-      state.originalTime,
-    );
+    if (app.maps.activeMap instanceof CesiumMap) {
+      const { timeOnClose } = deactivateShadow(
+        app,
+        state.shadowMap,
+        state.originalTime,
+      );
+      if (timeOnClose) {
+        state.timeOnClose = timeOnClose;
+      }
+    }
     state.shadowMap = null;
-    state.timeOnClose = timeOnClose;
     action.active = false;
   };
 
@@ -116,6 +122,15 @@ export default function setupToolActions(app, state) {
     }
     if (state.destroyShadowMapChangedListener) {
       state.destroyShadowMapChangedListener();
+    }
+    if (app.maps.activeMap instanceof CesiumMap) {
+      deactivateShadowWindow();
+    }
+    if (state.shadowMap) {
+      state.shadowMap.enabled = false;
+    }
+    if (state.clock) {
+      state.clock.currentTime = state.originalTime;
     }
     listeners.forEach((cb) => cb());
   };
