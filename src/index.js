@@ -107,7 +107,7 @@ export default function shadowPlugin() {
           speed: 'Animation time',
           speedUnit: 'Second(s)',
           speedTooltip:
-            'Determines the animation speed in seconds for an annual or daily loop',
+            'Determines the overall duration of the animation in seconds for an daily or annual loop',
           length: 'Length',
           for: 'for',
           hours: 'hours',
