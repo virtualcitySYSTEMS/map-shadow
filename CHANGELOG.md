@@ -1,3 +1,7 @@
+# v3.0.1
+
+- fixed a localization error in German
+
 # v3.0.0
 
 - Changed speed behaviour to animation time in seconds

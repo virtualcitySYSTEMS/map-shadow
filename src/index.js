@@ -133,7 +133,7 @@ export default function shadowPlugin() {
           speed: 'Animationsdauer',
           speedUnit: 'Sekunde(n)',
           speedTooltip:
-            'Bestimmt die Animationsgeschwindigkeit in Sekunden für einen Jahres- bzw. Tagesdurchlauf',
+            'Bestimmt die Animationsdauer in Sekunden für einen Jahres- bzw. Tagesdurchlauf',
           length: 'Länge',
           for: 'für',
           hours: 'Stunden',
