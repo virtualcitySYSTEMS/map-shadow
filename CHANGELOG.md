@@ -1,3 +1,7 @@
+# v3.0.2
+
+- fixed a bug, where destroying the plugin would throw an error
+
 # v3.0.1
 
 - fixed a localization error in German

@@ -30,9 +30,13 @@ export function activateShadow(app, timeOnClose, closeCallback) {
 
 export function deactivateShadow(app, shadowMap, originalTime) {
   const cesiumWidget = app.maps.activeMap.getCesiumWidget();
-  shadowMap.enabled = false;
+  if (shadowMap) {
+    shadowMap.enabled = false;
+  }
   const timeOnClose = cesiumWidget.clock.currentTime;
-  cesiumWidget.clock.currentTime = originalTime;
+  if (originalTime) {
+    cesiumWidget.clock.currentTime = originalTime;
+  }
   return { timeOnClose };
 }
 
