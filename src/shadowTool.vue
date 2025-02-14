@@ -1,38 +1,41 @@
 <template>
-  <v-container class="px-2 py-2 main">
-    <v-row class="d-flex flex-nowrap align-center justify-space-between">
-      <v-col class="d-flex align-center justify-start vcs-label-wrap">
+  <v-container class="pa-2">
+    <v-row
+      no-gutters
+      class="d-flex flex-nowrap align-center justify-space-between"
+    >
+      <v-col class="d-flex align-center justify-start">
         <VcsLabel html-for="time-slider">
           {{ $t('shadow.time') }}
         </VcsLabel>
       </v-col>
       <v-col class="d-flex align-center justify-end vcs-input-wrap">
         <VcsTextField
-          class="numberInput"
-          :id="TIME_UNITS.hours"
+          class="number-input"
+          :id="TimeUnits.hours"
+          type="number"
           :model-value="hours"
+          tooltip="shadow.hoursFormat"
+          tooltip-position="bottom"
+          hide-spin-buttons
+          :disabled="state.animate"
           @blur="setTime"
           @keyup.enter="setTime"
-          :rules="[validateHourInput]"
-          tooltip="shadow.hoursFormat"
-          type="number"
-          :hide-spin-buttons="true"
-          tooltip-position="bottom"
-          :disabled="state.animate"
+          :rules="[validateHour]"
         />
         :
         <VcsTextField
           class="number-input"
-          :id="TIME_UNITS.minutes"
+          :id="TimeUnits.minutes"
+          type="number"
           :model-value="minutes"
+          tooltip="shadow.minutesFormat"
+          tooltip-position="bottom"
+          hide-spin-buttons
+          :disabled="state.animate"
           @blur="setTime"
           @keyup.enter="setTime"
-          :rules="[validateMinuteInput]"
-          tooltip="shadow.minutesFormat"
-          type="number"
-          :hide-spin-buttons="true"
-          tooltip-position="bottom"
-          :disabled="state.animate"
+          :rules="[validateMinute]"
         />
         <VcsButton
           v-if="state.animate"
@@ -46,7 +49,6 @@
           icon="$vcsPlayCircle"
           @click="animateDay"
           tooltip="shadow.animateDay"
-          small
           class="pl-1"
         />
       </v-col>
@@ -61,12 +63,12 @@
     />
     <v-divider />
     <v-row class="d-flex flex-nowrap align-center justify-space-between">
-      <v-col class="d-flex align-center vcs-label-wrap">
+      <v-col class="d-flex align-center">
         <VcsLabel html-for="date">
           {{ $t('shadow.date') }}
         </VcsLabel>
       </v-col>
-      <v-col class="d-flex v-col-5 align-center">
+      <v-col cols="5" class="d-flex align-center">
         <VcsDatePicker v-model="date" :disabled="state.animate" />
         <VcsButton
           v-if="state.animate"
@@ -86,221 +88,241 @@
       </v-col>
     </v-row>
     <v-divider />
-    <v-row class="d-flex" no-gutters>
-      <v-col class="d-flex justify-start align-center">
-        <VcsLabel html-for="speed-slider">
+    <v-row no-gutters>
+      <v-col class="d-flex justify-start">
+        <VcsLabel
+          html-for="speed-slider"
+          help-text="shadow.speedTooltip"
+          tooltip-position="bottom"
+          class="gc-2"
+        >
           {{ $t('shadow.speed') }}
         </VcsLabel>
-        <v-icon
-          size="x-small"
-          class="px-3"
-          icon="mdi-help-circle"
-          ref="helpSpeedIcon"
-        />
-        <v-tooltip
-          :text="$t('shadow.speedTooltip')"
-          :activator="helpSpeedIcon"
-          :max-width="300"
-          location="bottom"
-        />
       </v-col>
       <v-col class="d-flex justify-end align-center">
         <VcsLabel class="pr-0">
-          {{ state.speed }} {{ $t('shadow.speedUnit') }}</VcsLabel
-        >
+          {{ state.speed }} {{ $t('shadow.speedUnit') }}
+        </VcsLabel>
       </v-col>
     </v-row>
     <VcsSlider
-      v-model="state.speed"
       id="speed-slider"
+      type="number"
+      show-ticks="always"
       :step="1"
       :min="1"
       :max="20"
-      show-ticks="always"
-      type="number"
+      v-model="state.speed"
     />
   </v-container>
 </template>
 
-<script setup>
+<script lang="ts">
+  import { VCol, VContainer, VDivider, VRow } from 'vuetify/components';
+  import { defineComponent, inject, computed, ref, onMounted } from 'vue';
+  import { type CesiumMap } from '@vcmap/core';
   import {
-    VContainer,
-    VDivider,
-    VIcon,
-    VTooltip,
-    VRow,
-    VCol,
-  } from 'vuetify/components';
-  import {
-    VcsLabel,
     VcsButton,
     VcsDatePicker,
-    VcsTextField,
+    VcsLabel,
     VcsSlider,
+    VcsTextField,
+    type VcsUiApp,
   } from '@vcmap/ui';
-  import { inject, computed, ref, onMounted } from 'vue';
   import { JulianDate } from '@vcmap-cesium/engine';
-  import { TIME_UNITS } from './constants.js';
+  import { type ShadowPlugin } from './index.js';
+  import { TimeUnits } from './constants.js';
   import {
     getNextTime,
     shouldAdvance,
     getTotalMinutesFromJulian,
-    validateHourInput,
-    validateMinuteInput,
     getHoursFromJulian,
     getMinutesFromJulian,
   } from './api.js';
   import { name } from '../package.json';
 
-  const app = inject('vcsApp');
-  const cesiumWidget = app.maps.activeMap.getCesiumWidget();
-  const { clock } = cesiumWidget;
-  const { state } = app.plugins.getByKey(name);
-
-  const localJulianDate = ref(clock.currentTime);
-  const setLocalJulianDate = (nv) => {
-    localJulianDate.value = nv;
-    clock.currentTime = nv;
-  };
-
-  let startAnimationTime;
-  let startLocalJulianDate;
-
-  const helpSpeedIcon = ref();
-
-  const date = computed({
-    get: () => {
-      return JulianDate.toDate(localJulianDate.value);
-    },
-    set: (nv) => {
-      nv.setHours(getHoursFromJulian(localJulianDate.value));
-      nv.setMinutes(getMinutesFromJulian(localJulianDate.value));
-      setLocalJulianDate(JulianDate.fromDate(nv));
-    },
-  });
-
-  const hours = computed({
-    get: () => {
-      const result = String(getHoursFromJulian(localJulianDate.value));
-      if (result.length < 2) {
-        return `0${result}`;
-      }
-      return result;
-    },
-    set: (nv) => {
-      const js = JulianDate.toDate(localJulianDate.value);
-      js.setHours(nv);
-      setLocalJulianDate(JulianDate.fromDate(js));
-    },
-  });
-  const minutes = computed({
-    get: () => {
-      let result = String(getMinutesFromJulian(localJulianDate.value));
-      if (result.length < 2) {
-        result = `0${result}`;
-      }
-      return result;
-    },
-    set: (nv) => {
-      const js = JulianDate.toDate(localJulianDate.value);
-      js.setMinutes(nv);
-      setLocalJulianDate(JulianDate.fromDate(js));
-    },
-  });
-  const totalMinutes = computed({
-    get: () => getTotalMinutesFromJulian(localJulianDate.value),
-    set: (nv) => {
-      const js = JulianDate.toDate(localJulianDate.value);
-      js.setHours(Math.floor(nv / 60), Math.round(nv % 60));
-      setLocalJulianDate(JulianDate.fromDate(js));
-    },
-  });
-
-  const stopAnimation = () => {
-    state.animate = false;
-    state.endDate = null;
-  };
-
-  onMounted(() => {
-    if (state.removeListener) {
-      state.removeListener();
-    }
-    state.removeListener = clock.onTick.addEventListener((newTime) => {
-      if (state.animate) {
-        if (shouldAdvance(localJulianDate.value, state.endDate)) {
-          const currentDate = getNextTime(
-            startAnimationTime,
-            startLocalJulianDate,
-            state.speed,
-            state.timeUnit,
-          );
-          setLocalJulianDate(currentDate);
-        } else {
-          stopAnimation();
-        }
-      } else if (
-        JulianDate.secondsDifference(
-          newTime.currentTime,
-          localJulianDate.value,
-        ) >= 1
-      ) {
-        setLocalJulianDate(newTime.currentTime);
-      }
-    });
-  });
-
-  const prepAnimation = () => {
-    startAnimationTime = new Date();
-    startLocalJulianDate = JulianDate.clone(localJulianDate.value);
-    state.animate = true;
-  };
-
-  const animateDay = () => {
-    prepAnimation();
-    state.timeUnit = TIME_UNITS.hours;
-    const calculateEndDate = JulianDate.addDays(
-      localJulianDate.value,
-      1,
-      new JulianDate(),
-    );
-    state.endDate = state.endDate ?? calculateEndDate;
-  };
-  const animateYear = () => {
-    prepAnimation();
-    state.timeUnit = TIME_UNITS.days;
-    const calculateEndDate = JulianDate.addDays(
-      localJulianDate.value,
-      365,
-      new JulianDate(),
-    );
-    state.endDate = state.endDate ?? calculateEndDate;
-  };
-  const setTime = (event) => {
-    const { value, id } = event.target;
-    if (id === TIME_UNITS.hours) {
-      if (validateHourInput(value)) {
-        hours.value = value;
-      }
-    } else if (id === TIME_UNITS.minutes) {
-      if (validateMinuteInput(value)) {
-        minutes.value = value;
-      }
-    }
-  };
-</script>
-<style lang="scss" scoped>
-  .number-input {
-    max-width: calc(var(--v-vcs-font-size) * 2.5);
+  function validateHour(nv: number): boolean {
+    const number = Number(nv);
+    return Number.isInteger(number) && number <= 23 && number >= 0;
   }
 
+  function validateMinute(nv: number): boolean {
+    const number = Number(nv);
+    return Number.isInteger(number) && number <= 59 && number >= 0;
+  }
+
+  export default defineComponent({
+    name: 'ShadowTool',
+    components: {
+      VCol,
+      VContainer,
+      VDivider,
+      VRow,
+      VcsButton,
+      VcsDatePicker,
+      VcsLabel,
+      VcsSlider,
+      VcsTextField,
+    },
+    setup() {
+      const app = inject('vcsApp') as VcsUiApp;
+      const map = app.maps.activeMap as CesiumMap;
+      const { state } = app.plugins.getByKey(name) as ShadowPlugin;
+      const { clock } = map.getCesiumWidget()!;
+
+      const localJulianDate = ref(clock.currentTime);
+      const setLocalJulianDate = (nv: JulianDate): void => {
+        localJulianDate.value = nv;
+        clock.currentTime = nv;
+      };
+
+      let startAnimationTime: Date;
+      let startLocalJulianDate: JulianDate;
+
+      const date = computed<Date>({
+        get: () => {
+          return JulianDate.toDate(localJulianDate.value);
+        },
+        set: (nv) => {
+          nv.setHours(getHoursFromJulian(localJulianDate.value));
+          nv.setMinutes(getMinutesFromJulian(localJulianDate.value));
+          setLocalJulianDate(JulianDate.fromDate(nv));
+        },
+      });
+
+      const hours = computed({
+        get: () => {
+          const result = String(getHoursFromJulian(localJulianDate.value));
+          if (result.length < 2) {
+            return `0${result}`;
+          }
+          return result;
+        },
+        set: (nv) => {
+          const js = JulianDate.toDate(localJulianDate.value);
+          js.setHours(+nv);
+          setLocalJulianDate(JulianDate.fromDate(js));
+        },
+      });
+      const minutes = computed({
+        get: () => {
+          let result = String(getMinutesFromJulian(localJulianDate.value));
+          if (result.length < 2) {
+            result = `0${result}`;
+          }
+          return result;
+        },
+        set: (nv) => {
+          const js = JulianDate.toDate(localJulianDate.value);
+          js.setMinutes(+nv);
+          setLocalJulianDate(JulianDate.fromDate(js));
+        },
+      });
+      const totalMinutes = computed({
+        get: () => getTotalMinutesFromJulian(localJulianDate.value),
+        set: (nv) => {
+          const js = JulianDate.toDate(localJulianDate.value);
+          js.setHours(Math.floor(nv / 60), Math.round(nv % 60));
+          setLocalJulianDate(JulianDate.fromDate(js));
+        },
+      });
+
+      const stopAnimation = (): void => {
+        state.animate = false;
+        state.endDate = null;
+      };
+
+      onMounted(() => {
+        if (state.removeListener) {
+          state.removeListener();
+        }
+        state.removeListener = clock.onTick.addEventListener((newTime) => {
+          if (state.animate) {
+            if (shouldAdvance(localJulianDate.value, state.endDate!)) {
+              const currentDate = getNextTime(
+                startAnimationTime,
+                startLocalJulianDate,
+                state.speed,
+                state.timeUnit,
+              );
+              setLocalJulianDate(currentDate);
+            } else {
+              stopAnimation();
+            }
+          } else if (
+            JulianDate.secondsDifference(
+              newTime.currentTime,
+              localJulianDate.value,
+            ) >= 1
+          ) {
+            setLocalJulianDate(newTime.currentTime);
+          }
+        });
+      });
+
+      const prepAnimation = (): void => {
+        startAnimationTime = new Date();
+        startLocalJulianDate = JulianDate.clone(localJulianDate.value);
+        state.animate = true;
+      };
+
+      const animateDay = (): void => {
+        prepAnimation();
+        state.timeUnit = TimeUnits.hours;
+        const calculateEndDate = JulianDate.addDays(
+          localJulianDate.value,
+          1,
+          new JulianDate(),
+        );
+        state.endDate = state.endDate ?? calculateEndDate;
+      };
+      const animateYear = (): void => {
+        prepAnimation();
+        state.timeUnit = TimeUnits.days;
+        const calculateEndDate = JulianDate.addDays(
+          localJulianDate.value,
+          365,
+          new JulianDate(),
+        );
+        state.endDate = state.endDate ?? calculateEndDate;
+      };
+      const setTime = (event: FocusEvent): void => {
+        const { value, id } = event.target as HTMLInputElement;
+        if (id === TimeUnits.hours) {
+          if (validateHour(+value)) {
+            hours.value = value;
+          }
+        } else if (id === TimeUnits.minutes) {
+          if (validateMinute(+value)) {
+            minutes.value = value;
+          }
+        }
+      };
+      return {
+        TimeUnits,
+        state,
+        animateDay,
+        animateYear,
+        stopAnimation,
+        date,
+        hours,
+        minutes,
+        totalMinutes,
+        setTime,
+        validateMinute,
+        validateHour,
+      };
+    },
+  });
+</script>
+
+<style lang="scss" scoped>
+  .number-input {
+    max-width: calc(var(--v-vcs-font-size) * 2.4);
+  }
   .vcs-input-wrap {
     flex: 1 2 auto;
   }
-
-  .vcs-label-wrap {
-    flex-basis: auto;
-  }
-
   :deep(.vcs-text-field input) {
     text-align: center;
   }

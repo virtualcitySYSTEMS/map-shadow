@@ -1,22 +1,31 @@
 import { describe, it, expect, beforeAll, afterAll } from 'vitest';
-import { VcsUiApp, loadPlugin, isValidPackageName } from '@vcmap/ui';
+import { VcsUiApp, loadPlugin, isValidPackageName, VcsPlugin } from '@vcmap/ui';
 import plugin from '../src/index.js';
 import packageJSON from '../package.json';
 
-function sleep(ms = 0) {
+function sleep(ms = 0): Promise<void> {
   return new Promise((resolve) => {
     setTimeout(resolve, ms);
   });
 }
 
-window.VcsPluginLoaderFunction = (name, module) => ({
+type TestPluginInstance = VcsPlugin<object, object>;
+
+// @ts-expect-error: not defined on global
+window.VcsPluginLoaderFunction = (
+  name: string,
+  module: string,
+): {
+  default: () => TestPluginInstance;
+} => ({
+  // @ts-expect-error: interface may not use this
   default: () => plugin({ name }, module),
 });
 
 const testPropSymbol = Symbol('testProp');
 
 describe('VcsPlugin Interface test', () => {
-  let pluginInstance;
+  let pluginInstance: TestPluginInstance | null;
 
   beforeAll(async () => {
     pluginInstance = await loadPlugin(packageJSON.name, {
@@ -56,7 +65,7 @@ describe('VcsPlugin Interface test', () => {
         expect(pluginInstance.i18n).to.be.a('object');
         const [scope, name] = packageJSON.name.split('/');
         const unscopedName = name || scope;
-        const camelCaseName = unscopedName.replace(/-./g, (x) =>
+        const camelCaseName = unscopedName.replace(/-./g, (x: string) =>
           x[1].toUpperCase(),
         );
         Object.values(pluginInstance.i18n).forEach((locale) => {
@@ -101,12 +110,14 @@ describe('VcsPlugin Interface test', () => {
   });
 
   describe('shadowing a plugin', () => {
-    let app;
-    let pluginInstance2;
+    let app: VcsUiApp;
+    let pluginInstance2:
+      | (TestPluginInstance & { [testPropSymbol]?: string })
+      | null;
 
     beforeAll(async () => {
       app = new VcsUiApp();
-      app.plugins.add(pluginInstance);
+      app.plugins.add(pluginInstance!);
       pluginInstance2 = await loadPlugin(packageJSON.name, {
         name: packageJSON.name,
         version: '2.0.0',
@@ -122,8 +133,8 @@ describe('VcsPlugin Interface test', () => {
     });
 
     it('should override the plugin correctly', () => {
-      expect(() => app.plugins.override(pluginInstance2)).to.not.throw;
-      app.plugins.override(pluginInstance2);
+      expect(() => app.plugins.override(pluginInstance2!)).to.not.throw;
+      app.plugins.override(pluginInstance2!);
       expect(app.plugins.getByKey(packageJSON.name)).to.have.property(
         testPropSymbol,
         'test',
@@ -132,8 +143,8 @@ describe('VcsPlugin Interface test', () => {
     });
 
     it('should reincarnate the plugin correctly', async () => {
-      expect(() => app.plugins.remove(pluginInstance2)).to.not.throw;
-      app.plugins.remove(pluginInstance2);
+      expect(() => app.plugins.remove(pluginInstance2!)).to.not.throw;
+      app.plugins.remove(pluginInstance2!);
       await sleep(0);
       expect(app.plugins.getByKey(packageJSON.name)).not.to.have.property(
         testPropSymbol,

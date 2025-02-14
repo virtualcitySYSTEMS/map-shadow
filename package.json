@@ -1,23 +1,24 @@
 {
   "name": "@vcmap/shadow",
   "version": "3.0.2",
-  "mapVersion": "^6.0",
   "description": "shadow tool to change daylight settings",
   "type": "module",
-  "main": "src/index.js",
+  "main": "dist/index.js",
   "scripts": {
     "prepublishOnly": "vcmplugin build",
     "build": "vcmplugin build",
-    "pack": "vcmplugin pack",
+    "bundle": "vcmplugin bundle",
     "start": "vcmplugin serve",
     "preview": "vcmplugin preview",
-    "test": "vitest",
-    "coverage": "vitest run --coverage",
     "buildStagingApp": "vcmplugin buildStagingApp",
     "lint:js": "eslint . --ext .vue,.js,.cjs,.mjs,.ts,.cts,.mts",
     "lint:prettier": "prettier --check .",
     "lint": "npm run lint:js && npm run lint:prettier",
-    "format": "prettier --write --list-different . && npm run lint:js -- --fix"
+    "format": "prettier --write --list-different . && npm run lint:js -- --fix",
+    "test": "vitest",
+    "coverage": "vitest run --coverage",
+    "type-check": "vue-tsc --noEmit",
+    "ensure-types": "vcmplugin ensure-types"
   },
   "author": "virtualcitysystems GmbH",
   "license": "MIT",
@@ -34,37 +35,32 @@
     "CHANGELOG.md"
   ],
   "exports": {
-    ".": "./src/index.js",
+    ".": "dist/index.js",
     "./dist": "./dist/index.js"
   },
-  "repository": {
-    "url": "git@gitlab.virtualcitysystems.de:vcsuite/npm/vcmap/shadow.git"
-  },
+  "eslintIgnore": [
+    "node_modules",
+    "dist",
+    "plugin-assets"
+  ],
+  "prettier": "@vcsuite/eslint-config/prettier.js",
   "peerDependencies": {
     "@vcmap-cesium/engine": "^11.0.2",
-    "@vcmap/core": "^6.0.5",
-    "@vcmap/ui": "^6.0.7",
+    "@vcmap/core": "^6.0.7",
+    "@vcmap/ui": "^6.0.14",
     "vue": "~3.4.38",
-    "vuetify": "^3.7.3"
+    "vuetify": "^3.7.12"
   },
   "devDependencies": {
     "@vcmap/plugin-cli": "^4.0.1",
     "@vcsuite/eslint-config": "^3.0.8",
-    "@vitest/coverage-v8": "^2.1.4",
-    "eslint": "^8.38.0",
+    "@vitest/coverage-v8": "^3.0.5",
     "jest-canvas-mock": "^2.5.2",
-    "jsdom": "^24.0.0",
-    "resize-observer-polyfill": "1.5.1",
-    "vitest": "^2.1.4"
+    "jsdom": "^26.0.0",
+    "resize-observer-polyfill": "^1.5.1",
+    "typescript": "^5.7.3",
+    "vitest": "^3.0.5",
+    "vue-tsc": "^2.2.0"
   },
-  "prettier": "@vcsuite/eslint-config/prettier.js",
-  "eslintIgnore": [
-    "node_modules",
-    "*timestamp-*.mjs",
-    "dist"
-  ],
-  "eslintConfig": {
-    "root": true,
-    "extends": "@vcsuite/eslint-config/vue"
-  }
+  "mapVersion": "^6.0"
 }

@@ -1,3 +1,7 @@
+# v3.0.3
+
+- Convert ShadowTool to TypeScript
+
 # v3.0.2
 
 - fixed a bug, where destroying the plugin would throw an error
