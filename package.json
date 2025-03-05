@@ -51,6 +51,9 @@
     "vue": "~3.4.38",
     "vuetify": "^3.7.12"
   },
+  "overrides": {
+    "esbuild": "^0.25.0"
+  },
   "devDependencies": {
     "@vcmap/plugin-cli": "^4.0.1",
     "@vcsuite/eslint-config": "^3.0.8",
