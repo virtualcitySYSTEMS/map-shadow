@@ -1,3 +1,7 @@
+# v3.0.4
+
+- Set default date to current date
+
 # v3.0.3
 
 - Convert ShadowTool to TypeScript

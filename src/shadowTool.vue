@@ -1,5 +1,5 @@
 <template>
-  <v-container class="pa-2">
+  <v-container class="pa-2 overflow-hidden">
     <v-row
       no-gutters
       class="d-flex flex-nowrap align-center justify-space-between"
@@ -11,51 +11,51 @@
       </v-col>
       <v-col class="d-flex align-center justify-end vcs-input-wrap">
         <VcsTextField
+          :id="TimeUnits.Hours"
           class="number-input"
-          :id="TimeUnits.hours"
           type="number"
           :model-value="hours"
           tooltip="shadow.hoursFormat"
           tooltip-position="bottom"
           hide-spin-buttons
           :disabled="state.animate"
+          :rules="[validateHour]"
           @blur="setTime"
           @keyup.enter="setTime"
-          :rules="[validateHour]"
         />
         :
         <VcsTextField
+          :id="TimeUnits.Minutes"
           class="number-input"
-          :id="TimeUnits.minutes"
           type="number"
           :model-value="minutes"
           tooltip="shadow.minutesFormat"
           tooltip-position="bottom"
           hide-spin-buttons
           :disabled="state.animate"
+          :rules="[validateMinute]"
           @blur="setTime"
           @keyup.enter="setTime"
-          :rules="[validateMinute]"
         />
         <VcsButton
           v-if="state.animate"
           icon="mdi-pause-circle"
-          @click="stopAnimation"
           tooltip="shadow.pause"
           class="pl-1"
+          @click="stopAnimation"
         />
         <VcsButton
           v-else
           icon="$vcsPlayCircle"
-          @click="animateDay"
           tooltip="shadow.animateDay"
           class="pl-1"
+          @click="animateDay"
         />
       </v-col>
     </v-row>
     <VcsSlider
-      v-model="totalMinutes"
       id="time-slider"
+      v-model="totalMinutes"
       :min="0"
       :max="24 * 60 - 1"
       :step="0"
@@ -68,51 +68,51 @@
           {{ $t('shadow.date') }}
         </VcsLabel>
       </v-col>
-      <v-col cols="5" class="d-flex align-center">
+      <v-col class="d-flex align-center">
         <VcsDatePicker v-model="date" :disabled="state.animate" />
         <VcsButton
           v-if="state.animate"
           icon="mdi-pause-circle"
-          @click="stopAnimation"
           tooltip="shadow.pause"
           class="pl-1"
+          @click="stopAnimation"
         />
         <VcsButton
           v-else
           icon="$vcsPlayCircle"
-          @click="animateYear"
           tooltip="shadow.animateYear"
           small
           class="pl-1"
+          @click="animateYear"
         />
       </v-col>
     </v-row>
     <v-divider />
-    <v-row no-gutters>
+    <v-row class="d-flex flex-nowrap align-center justify-space-between pt-1">
       <v-col class="d-flex justify-start">
         <VcsLabel
-          html-for="speed-slider"
-          help-text="shadow.speedTooltip"
+          html-for="duration-picker"
+          help-text="shadow.durationTooltip"
           tooltip-position="bottom"
           class="gc-2"
         >
-          {{ $t('shadow.speed') }}
+          {{ $t('shadow.duration') }}
         </VcsLabel>
       </v-col>
-      <v-col class="d-flex justify-end align-center">
-        <VcsLabel class="pr-0">
-          {{ state.speed }} {{ $t('shadow.speedUnit') }}
+      <v-col class="d-flex align-center justify-end">
+        <VcsLabel class="pr-0" html-for="duration-slider">
+          {{ state.duration }} {{ $t('shadow.seconds') }}
         </VcsLabel>
       </v-col>
     </v-row>
     <VcsSlider
-      id="speed-slider"
+      id="duration-slider"
+      v-model="state.duration"
       type="number"
       show-ticks="always"
       :step="1"
       :min="1"
       :max="20"
-      v-model="state.speed"
     />
   </v-container>
 </template>
@@ -236,13 +236,17 @@
         if (state.removeListener) {
           state.removeListener();
         }
+        const clockDate = JulianDate.toDate(clock.currentTime);
+        clockDate.setFullYear(new Date().getFullYear());
+        clock.currentTime = JulianDate.fromDate(clockDate);
+
         state.removeListener = clock.onTick.addEventListener((newTime) => {
           if (state.animate) {
             if (shouldAdvance(localJulianDate.value, state.endDate!)) {
               const currentDate = getNextTime(
                 startAnimationTime,
                 startLocalJulianDate,
-                state.speed,
+                state.duration,
                 state.timeUnit,
               );
               setLocalJulianDate(currentDate);
@@ -268,7 +272,7 @@
 
       const animateDay = (): void => {
         prepAnimation();
-        state.timeUnit = TimeUnits.hours;
+        state.timeUnit = TimeUnits.Hours;
         const calculateEndDate = JulianDate.addDays(
           localJulianDate.value,
           1,
@@ -278,7 +282,7 @@
       };
       const animateYear = (): void => {
         prepAnimation();
-        state.timeUnit = TimeUnits.days;
+        state.timeUnit = TimeUnits.Days;
         const calculateEndDate = JulianDate.addDays(
           localJulianDate.value,
           365,
@@ -288,16 +292,17 @@
       };
       const setTime = (event: FocusEvent): void => {
         const { value, id } = event.target as HTMLInputElement;
-        if (id === TimeUnits.hours) {
+        if ((id as TimeUnits) === TimeUnits.Hours) {
           if (validateHour(+value)) {
             hours.value = value;
           }
-        } else if (id === TimeUnits.minutes) {
+        } else if ((id as TimeUnits) === TimeUnits.Minutes) {
           if (validateMinute(+value)) {
             minutes.value = value;
           }
         }
       };
+
       return {
         TimeUnits,
         state,

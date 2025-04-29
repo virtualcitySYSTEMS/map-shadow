@@ -49,21 +49,21 @@
     "@vcmap/core": "^6.0.7",
     "@vcmap/ui": "^6.0.14",
     "vue": "~3.4.38",
-    "vuetify": "^3.7.12"
+    "vuetify": "~3.7.19"
   },
   "overrides": {
     "esbuild": "^0.25.0"
   },
   "devDependencies": {
-    "@vcmap/plugin-cli": "^4.0.1",
-    "@vcsuite/eslint-config": "^3.0.8",
-    "@vitest/coverage-v8": "^3.0.5",
+    "@vcmap/plugin-cli": "^4.0.2",
+    "@vcsuite/eslint-config": "^4.0.0",
+    "@vitest/coverage-v8": "^2.1.9",
     "jest-canvas-mock": "^2.5.2",
     "jsdom": "^26.0.0",
     "resize-observer-polyfill": "^1.5.1",
-    "typescript": "^5.7.3",
-    "vitest": "^3.0.5",
-    "vue-tsc": "^2.2.0"
+    "typescript": "^5.8.2",
+    "vitest": "^2.1.9",
+    "vue-tsc": "^2.2.8"
   },
   "mapVersion": "^6.0"
 }

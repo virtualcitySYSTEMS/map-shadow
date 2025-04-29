@@ -54,21 +54,21 @@ export function deactivateShadow(
 export function getNextTime(
   startAnimationTime: Date,
   startLocalJulianDate: JulianDate,
-  animationTime: number,
+  animationDuration: number,
   timeUnit: TimeUnits,
 ): JulianDate {
   const interDate = new Date();
   const timeElapsed =
     (interDate.getTime() - startAnimationTime.getTime()) / 1000;
-  if (timeUnit === TimeUnits.hours) {
-    const step = ((60 * 24) / animationTime) * timeElapsed;
+  if (timeUnit === TimeUnits.Hours) {
+    const step = ((60 * 24) / animationDuration) * timeElapsed;
     return JulianDate.addMinutes(
       startLocalJulianDate,
       Math.ceil(step),
       new JulianDate(),
     );
-  } else if (timeUnit === TimeUnits.days) {
-    const step = (365 / animationTime) * timeElapsed;
+  } else if (timeUnit === TimeUnits.Days) {
+    const step = (365 / animationDuration) * timeElapsed;
     return JulianDate.addDays(
       startLocalJulianDate,
       Math.ceil(step),

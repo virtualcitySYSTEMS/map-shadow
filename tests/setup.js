@@ -1,13 +1,13 @@
-/* eslint-disable import/no-extraneous-dependencies, import/first */
+/* eslint-disable import/first */
 import { vi } from 'vitest';
 
 vi.hoisted(() => {
-  global.jest = vi;
+  globalThis.jest = vi;
 });
 
 import ResizeObserver from 'resize-observer-polyfill';
 
-global.ResizeObserver = ResizeObserver;
+globalThis.ResizeObserver = ResizeObserver;
 
 import 'jest-canvas-mock';
 

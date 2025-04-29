@@ -1,8 +1,8 @@
 /** time units for animation */
 export enum TimeUnits {
-  minutes = 'minutes',
-  hours = 'hours',
-  days = 'days',
+  Minutes = 'minutes',
+  Hours = 'hours',
+  Days = 'days',
 }
 
 export const windowId = 'shadow_tool_window_id';

@@ -1,9 +1,9 @@
-import { WindowComponentOptions, WindowSlot } from '@vcmap/ui';
+import { WindowSlot } from '@vcmap/ui';
 import { CesiumMap } from '@vcmap/core';
-import type { VcsAction, VcsUiApp } from '@vcmap/ui';
+import type { VcsAction, VcsUiApp, WindowComponentOptions } from '@vcmap/ui';
 import { reactive } from 'vue';
 import Shadow from './shadowTool.vue';
-import { ShadowState } from './index.js';
+import type { ShadowState } from './index.js';
 import { windowId } from './constants.js';
 import { activateShadow, deactivateShadow } from './api.js';
 import { name as pluginName } from '../package.json';
@@ -115,7 +115,9 @@ export default function setupToolActions(
     if (state.clock) {
       state.clock.currentTime = state.originalTime!;
     }
-    listeners.forEach((cb) => cb());
+    listeners.forEach((cb) => {
+      cb();
+    });
   };
 
   return { action, destroy };

@@ -12,7 +12,7 @@ export type ShadowState = {
   originalTime: JulianDate | null;
   timeOnClose: JulianDate | null;
   animate: boolean;
-  speed: number;
+  duration: number;
   timeUnit: TimeUnits;
   endDate: JulianDate | null;
   removeListener: (() => void) | null;
@@ -28,8 +28,8 @@ const defaultState = reactive<ShadowState>({
   originalTime: null,
   timeOnClose: null,
   animate: false,
-  speed: 10,
-  timeUnit: TimeUnits.days,
+  duration: 10,
+  timeUnit: TimeUnits.Days,
   endDate: null,
   removeListener: null,
   shadowMap: null,
@@ -96,17 +96,18 @@ export default function shadowPlugin(): ShadowPlugin {
           animateDay: 'Animate shadow over a day',
           animateYear: 'Animate shadow over a year',
           pause: 'Pause',
-          speed: 'Animation time',
-          speedUnit: 'Second(s)',
-          speedTooltip:
-            'Determines the overall duration of the animation in seconds for an daily or annual loop',
-          length: 'Length',
-          for: 'for',
+          duration: 'Animation duration',
+          durationTooltip:
+            'Determines the overall duration of the animation for a daily or annual loop.',
           hours: 'hours',
+          minutes: 'minutes',
+          min: 'min',
+          seconds: 'seconds',
+          sec: 'sec',
+          and: 'and',
           hoursFormat: 'Hour of day (00 to 23)',
           minutesFormat: 'Minutes of day (00 to 59)',
-          days: 'days',
-          units: 'units',
+          timePickerSelectHint: 'Select the',
         },
       },
       de: {
@@ -117,17 +118,18 @@ export default function shadowPlugin(): ShadowPlugin {
           animateDay: 'Schatten über einen Tag animieren',
           animateYear: 'Schatten über ein Jahr animieren',
           pause: 'Pause',
-          speed: 'Animationsdauer',
-          speedUnit: 'Sekunde(n)',
-          speedTooltip:
-            'Bestimmt die Animationsdauer in Sekunden für einen Jahres- bzw. Tagesdurchlauf',
-          length: 'Länge',
-          for: 'für',
+          duration: 'Animationsdauer',
+          durationTooltip:
+            'Definiert die Gesamtdauer der Animation für einen Tages- bzw. Jahresdurchlauf.',
           hours: 'Stunden',
+          minutes: 'Minuten',
+          min: 'Min',
+          seconds: 'Sekunden',
+          sec: 'Sek',
+          and: 'und',
           hoursFormat: 'Stunden (00 bis 23)',
           minutesFormat: 'Minuten (00 bis 59)',
-          days: 'Tagen',
-          units: 'Maßeinheiten',
+          timePickerSelectHint: 'Wählen Sie die',
         },
       },
     },
