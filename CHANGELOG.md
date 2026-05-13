@@ -1,3 +1,7 @@
+# v3.1.0
+
+- Added `ActivateShadowCallback` and `DeactivateShadowCallback` to activate and deactivate the Shadow tool via the VcsCallback system
+
 # v3.0.4
 
 - Set default date to current date

@@ -141,14 +141,14 @@
   } from './api.js';
   import { name } from '../package.json';
 
-  function validateHour(nv: number): boolean {
-    const number = Number(nv);
-    return Number.isInteger(number) && number <= 23 && number >= 0;
+  function validateHour(num: number | string): boolean {
+    const parsed = typeof num === 'string' ? parseInt(num, 10) : num;
+    return Number.isInteger(parsed) && parsed <= 23 && parsed >= 0;
   }
 
-  function validateMinute(nv: number): boolean {
-    const number = Number(nv);
-    return Number.isInteger(number) && number <= 59 && number >= 0;
+  function validateMinute(num: number | string): boolean {
+    const parsed = typeof num === 'string' ? parseInt(num, 10) : num;
+    return Number.isInteger(parsed) && parsed <= 59 && parsed >= 0;
   }
 
   export default defineComponent({
@@ -167,7 +167,8 @@
     setup() {
       const app = inject('vcsApp') as VcsUiApp;
       const map = app.maps.activeMap as CesiumMap;
-      const { state } = app.plugins.getByKey(name) as ShadowPlugin;
+      const plugin = app.plugins.getByKey(name) as ShadowPlugin;
+      const { state } = plugin;
       const { clock } = map.getCesiumWidget()!;
 
       const localJulianDate = ref(clock.currentTime);
@@ -176,8 +177,8 @@
         clock.currentTime = nv;
       };
 
-      let startAnimationTime: Date;
-      let startLocalJulianDate: JulianDate;
+      let startAnimationTime: Date | undefined;
+      let startLocalJulianDate: JulianDate | undefined;
 
       const date = computed<Date>({
         get: () => {
@@ -230,38 +231,48 @@
       const stopAnimation = (): void => {
         state.animate = false;
         state.endDate = null;
+        startAnimationTime = undefined;
+        startLocalJulianDate = undefined;
       };
 
       onMounted(() => {
-        if (state.removeListener) {
-          state.removeListener();
+        if (plugin.removeOnTickListener) {
+          plugin.removeOnTickListener();
         }
         const clockDate = JulianDate.toDate(clock.currentTime);
         clockDate.setFullYear(new Date().getFullYear());
         clock.currentTime = JulianDate.fromDate(clockDate);
 
-        state.removeListener = clock.onTick.addEventListener((newTime) => {
-          if (state.animate) {
-            if (shouldAdvance(localJulianDate.value, state.endDate!)) {
-              const currentDate = getNextTime(
-                startAnimationTime,
-                startLocalJulianDate,
-                state.duration,
-                state.timeUnit,
-              );
-              setLocalJulianDate(currentDate);
-            } else {
-              stopAnimation();
+        plugin.removeOnTickListener = clock.onTick.addEventListener(
+          (newTime) => {
+            if (state.animate) {
+              if (!startAnimationTime) {
+                startAnimationTime = new Date();
+              }
+              if (!startLocalJulianDate) {
+                startLocalJulianDate = JulianDate.clone(localJulianDate.value);
+              }
+              if (shouldAdvance(localJulianDate.value, state.endDate!)) {
+                const currentDate = getNextTime(
+                  startAnimationTime,
+                  startLocalJulianDate,
+                  state.duration,
+                  state.timeUnit,
+                );
+                setLocalJulianDate(currentDate);
+              } else {
+                stopAnimation();
+              }
+            } else if (
+              JulianDate.secondsDifference(
+                newTime.currentTime,
+                localJulianDate.value,
+              ) >= 1
+            ) {
+              setLocalJulianDate(newTime.currentTime);
             }
-          } else if (
-            JulianDate.secondsDifference(
-              newTime.currentTime,
-              localJulianDate.value,
-            ) >= 1
-          ) {
-            setLocalJulianDate(newTime.currentTime);
-          }
-        });
+          },
+        );
       });
 
       const prepAnimation = (): void => {

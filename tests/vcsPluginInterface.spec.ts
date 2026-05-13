@@ -26,13 +26,16 @@ window.VcsPluginLoaderFunction = (
 const testPropSymbol = Symbol('testProp');
 
 describe('VcsPlugin Interface test', () => {
+  let app: VcsUiApp;
   let pluginInstance: TestPluginInstance | null;
 
   beforeAll(async () => {
+    app = new VcsUiApp();
     pluginInstance = await loadPlugin(packageJSON.name, {
       name: packageJSON.name,
       entry: '_dev',
     });
+    app.plugins.add(pluginInstance!);
   });
 
   afterAll(() => {
@@ -119,7 +122,6 @@ describe('VcsPlugin Interface test', () => {
   });
 
   describe('shadowing a plugin', () => {
-    let app: VcsUiApp;
     let pluginInstance2:
       | (TestPluginInstance & { [testPropSymbol]?: string })
       | null;

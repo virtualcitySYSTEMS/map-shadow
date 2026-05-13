@@ -1,4 +1,4 @@
-import { CesiumMap } from '@vcmap/core';
+import { CesiumMap, moduleIdSymbol } from '@vcmap/core';
 import { ToolboxType } from '@vcmap/ui';
 import type { PluginConfigEditor, VcsPlugin, VcsUiApp } from '@vcmap/ui';
 import type { Clock, JulianDate, ShadowMap } from '@vcmap-cesium/engine';
@@ -6,22 +6,47 @@ import { reactive } from 'vue';
 import { TimeUnits, windowId } from './constants.js';
 import { name, version, mapVersion } from '../package.json';
 import setupToolActions from './actionHelper.js';
+import ActivateShadowCallback from './callbacks/activateShadowCallback.js';
+import DeactivateShadowCallback from './callbacks/deactivateShadowCallback.js';
 
 type ShadowConfig = Record<never, never>;
+
 export type ShadowState = {
+  /**
+   * Baseline clock time captured when the shadow simulation is first activated.
+   * Used to restore the original map time when the tool is fully torn down.
+   */
   originalTime: JulianDate | null;
+  /**
+   * Last clock time when the tool was closed/deactivated.
+   * Used to resume from the previous position on the next activation.
+   */
   timeOnClose: JulianDate | null;
+  /**
+   * Indicates whether the automatic shadow animation is currently running.
+   */
   animate: boolean;
+  /**
+   * Total duration of one animation cycle in the currently selected time unit.
+   */
   duration: number;
+  /**
+   * Time unit used for animation and duration interpretation (e.g. day or year).
+   */
   timeUnit: TimeUnits;
+  /**
+   * Target time for the current animation run.
+   * Once reached, animation stops and the state is reset.
+   */
   endDate: JulianDate | null;
-  removeListener: (() => void) | null;
-  shadowMap: ShadowMap | null;
-  destroyShadowMapChangedListener: (() => void) | null;
-  clock: Clock | null;
 };
 export type ShadowPlugin = VcsPlugin<ShadowConfig, ShadowState> & {
   readonly state: ShadowState;
+  activate: (showWindow?: boolean) => void;
+  deactivate: () => void;
+  clock: Clock | undefined;
+  shadowMap: ShadowMap | undefined;
+  removeOnTickListener: (() => void) | undefined;
 };
 
 const defaultState = reactive<ShadowState>({
@@ -31,16 +56,16 @@ const defaultState = reactive<ShadowState>({
   duration: 10,
   timeUnit: TimeUnits.Days,
   endDate: null,
-  removeListener: null,
-  shadowMap: null,
-  destroyShadowMapChangedListener: null,
-  clock: null,
 });
 
 export default function shadowPlugin(): ShadowPlugin {
   let app: VcsUiApp;
-  let destroyAction: (() => void) | undefined;
+  let setup: ReturnType<typeof setupToolActions> | undefined;
   let mapChangedListener: (() => void) | undefined;
+
+  let clock: Clock | undefined;
+  let shadowMap: ShadowMap | undefined;
+  let removeOnTickListener: (() => void) | undefined;
 
   return {
     get name(): string {
@@ -53,11 +78,25 @@ export default function shadowPlugin(): ShadowPlugin {
       return mapVersion;
     },
     state: defaultState,
+    clock,
+    shadowMap,
+    removeOnTickListener,
     initialize(vcsUiApp: VcsUiApp): Promise<void> {
       app = vcsUiApp;
-      const { action, destroy } = setupToolActions(vcsUiApp, defaultState);
+      app.callbackClassRegistry.registerClass(
+        this[moduleIdSymbol],
+        ActivateShadowCallback.className,
+        ActivateShadowCallback,
+      );
+      app.callbackClassRegistry.registerClass(
+        this[moduleIdSymbol],
+        DeactivateShadowCallback.className,
+        DeactivateShadowCallback,
+      );
+
+      setup = setupToolActions(vcsUiApp, this);
+      const { action } = setup;
       action.disabled = !(vcsUiApp.maps.activeMap instanceof CesiumMap);
-      destroyAction = destroy;
       mapChangedListener = vcsUiApp.maps.mapActivated.addEventListener(
         (map) => {
           if (!(map instanceof CesiumMap)) {
@@ -80,6 +119,12 @@ export default function shadowPlugin(): ShadowPlugin {
         name,
       );
       return Promise.resolve();
+    },
+    activate(): void {
+      setup?.activate();
+    },
+    deactivate(): void {
+      setup?.deactivate();
     },
     getDefaultOptions(): ShadowConfig {
       return {};
@@ -137,9 +182,19 @@ export default function shadowPlugin(): ShadowPlugin {
       return [];
     },
     destroy(): void {
-      if (defaultState.removeListener) {
-        defaultState.removeListener();
-        defaultState.removeListener = null;
+      if (app) {
+        app.callbackClassRegistry.unregisterClass(
+          this[moduleIdSymbol],
+          ActivateShadowCallback.className,
+        );
+        app.callbackClassRegistry.unregisterClass(
+          this[moduleIdSymbol],
+          DeactivateShadowCallback.className,
+        );
+      }
+      if (removeOnTickListener) {
+        removeOnTickListener();
+        removeOnTickListener = undefined;
       }
 
       if (app?.toolboxManager.has(name)) {
@@ -148,7 +203,7 @@ export default function shadowPlugin(): ShadowPlugin {
       if (app?.windowManager.has(windowId)) {
         app.windowManager.remove(windowId);
       }
-      destroyAction?.();
+      setup?.destroy();
       mapChangedListener?.();
     },
   };
