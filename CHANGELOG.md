@@ -1,4 +1,4 @@
-# v3.1.1
+# v3.2.0
 
 - add `getState` to plugin API
 - change keys of `ShadowUrlState` to be shorter for URL
