@@ -2,6 +2,7 @@ import { WindowSlot } from '@vcmap/ui';
 import { CesiumMap } from '@vcmap/core';
 import type { VcsAction, VcsUiApp, WindowComponentOptions } from '@vcmap/ui';
 import { reactive, watch } from 'vue';
+import { JulianDate } from '@vcmap-cesium/engine';
 import { name as pluginName } from '../package.json';
 import type { ShadowPlugin } from './index.js';
 import Shadow from './shadowTool.vue';
@@ -14,7 +15,7 @@ export default function setupToolActions(
 ): {
   action: VcsAction;
   destroy: () => void;
-  activate: () => void;
+  activate: (showWindow?: boolean) => void;
   deactivate: () => void;
 } {
   const { state } = plugin;
@@ -89,7 +90,7 @@ export default function setupToolActions(
     action.background = false;
   };
 
-  activateShadowWindow = (): void => {
+  activateShadowWindow = (showWindow = true): void => {
     if (!(app.maps.activeMap instanceof CesiumMap)) {
       return;
     }
@@ -107,8 +108,13 @@ export default function setupToolActions(
       }
     }
     action.active = true;
+
     if (!app.windowManager.has(windowId)) {
-      app.windowManager.add(windowComponent, pluginName);
+      if (showWindow) {
+        app.windowManager.add(windowComponent, pluginName);
+      } else {
+        action.background = true;
+      }
     }
   };
 
@@ -153,7 +159,7 @@ export default function setupToolActions(
       plugin.shadowMap.enabled = false;
     }
     if (plugin.clock) {
-      plugin.clock.currentTime = state.originalTime!;
+      plugin.clock.currentTime = JulianDate.fromIso8601(state.originalTime!);
     }
     listeners.forEach((cb) => {
       cb();

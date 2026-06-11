@@ -33,16 +33,17 @@ The Shadow plugin registers two [VcsCallbacks](https://github.com/virtualcitySYS
 ### ActivateShadowCallback
 
 Activates the shadow tool and optionally applies shadow time and animation settings before activation.
-Accepts either ShadowState format (JulianDate values) or ShadowUrlState format (the same keys, with ISO date strings for date fields).
+Accepts either `ShadowState` format or the URL-compressed `ShadowUrlState` format.
+All date/time values are ISO 8601 strings.
 
-| property     | type                 | description                                                                 |
-| ------------ | -------------------- | --------------------------------------------------------------------------- |
-| originalTime | JulianDate \| string | Baseline clock time used as the original time for full tool teardown reset. |
-| timeOnClose  | JulianDate \| string | Clock time to resume from when the shadow tool activates again.             |
-| animate      | boolean              | Whether animation should start immediately after activation.                |
-| duration     | number               | Duration of one animation cycle in the selected timeUnit.                   |
-| timeUnit     | TimeUnits            | Unit used to interpret duration (for example day or year).                  |
-| endDate      | JulianDate \| string | Optional animation stop time target.                                        |
+| property     | URL key | type      | description                                                                                                                       |
+| ------------ | ------- | --------- | --------------------------------------------------------------------------------------------------------------------------------- |
+| originalTime | `ot`    | string    | Baseline ISO 8601 time captured when the shadow simulation is first activated. Used to restore the original map time on teardown. |
+| timeOnClose  | `toc`   | string    | Last ISO 8601 clock time when the tool was closed/deactivated. Used to resume from the previous position on the next activation.  |
+| animate      | `a`     | boolean   | Whether the automatic shadow animation should start immediately after activation.                                                 |
+| duration     | `d`     | number    | Total duration of one animation cycle in the currently selected time unit.                                                        |
+| timeUnit     | `tu`    | TimeUnits | Time unit used for animation and duration interpretation (for example day or year).                                               |
+| endDate      | `ed`    | string    | Optional ISO 8601 target time at which the animation stops and the state is reset.                                                |
 
 ```json
 {

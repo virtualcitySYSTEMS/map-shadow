@@ -1,47 +1,29 @@
 import { CesiumMap, moduleIdSymbol } from '@vcmap/core';
 import { ToolboxType } from '@vcmap/ui';
 import type { PluginConfigEditor, VcsPlugin, VcsUiApp } from '@vcmap/ui';
-import type { Clock, JulianDate, ShadowMap } from '@vcmap-cesium/engine';
+import type { Clock, ShadowMap } from '@vcmap-cesium/engine';
 import { reactive } from 'vue';
-import { TimeUnits, windowId } from './constants.js';
+import { windowId } from './constants.js';
 import { name, version, mapVersion } from '../package.json';
 import setupToolActions from './actionHelper.js';
 import ActivateShadowCallback from './callbacks/activateShadowCallback.js';
 import DeactivateShadowCallback from './callbacks/deactivateShadowCallback.js';
+import {
+  getDefaultState,
+  getPluginState,
+  parsePluginState,
+  type ShadowState,
+  type ShadowUrlState,
+} from './stateHelper.js';
 
 type ShadowConfig = Record<never, never>;
 
-export type ShadowState = {
-  /**
-   * Baseline clock time captured when the shadow simulation is first activated.
-   * Used to restore the original map time when the tool is fully torn down.
-   */
-  originalTime: JulianDate | null;
-  /**
-   * Last clock time when the tool was closed/deactivated.
-   * Used to resume from the previous position on the next activation.
-   */
-  timeOnClose: JulianDate | null;
-  /**
-   * Indicates whether the automatic shadow animation is currently running.
-   */
-  animate: boolean;
-  /**
-   * Total duration of one animation cycle in the currently selected time unit.
-   */
-  duration: number;
-  /**
-   * Time unit used for animation and duration interpretation (e.g. day or year).
-   */
-  timeUnit: TimeUnits;
-  /**
-   * Target time for the current animation run.
-   * Once reached, animation stops and the state is reset.
-   */
-  endDate: JulianDate | null;
-};
-export type ShadowPlugin = VcsPlugin<ShadowConfig, ShadowState> & {
+export type ShadowPlugin = VcsPlugin<
+  ShadowConfig,
+  ShadowState | ShadowUrlState
+> & {
   readonly state: ShadowState;
+  active: boolean;
   activate: (showWindow?: boolean) => void;
   deactivate: () => void;
   clock: Clock | undefined;
@@ -49,19 +31,13 @@ export type ShadowPlugin = VcsPlugin<ShadowConfig, ShadowState> & {
   removeOnTickListener: (() => void) | undefined;
 };
 
-const defaultState = reactive<ShadowState>({
-  originalTime: null,
-  timeOnClose: null,
-  animate: false,
-  duration: 10,
-  timeUnit: TimeUnits.Days,
-  endDate: null,
-});
+const state = reactive<ShadowState>(getDefaultState());
 
 export default function shadowPlugin(): ShadowPlugin {
   let app: VcsUiApp;
   let setup: ReturnType<typeof setupToolActions> | undefined;
   let mapChangedListener: (() => void) | undefined;
+  let mapActivatedListener: (() => void) | undefined;
 
   let clock: Clock | undefined;
   let shadowMap: ShadowMap | undefined;
@@ -77,11 +53,11 @@ export default function shadowPlugin(): ShadowPlugin {
     get mapVersion(): string {
       return mapVersion;
     },
-    state: defaultState,
+    state,
     clock,
     shadowMap,
     removeOnTickListener,
-    initialize(vcsUiApp: VcsUiApp): Promise<void> {
+    initialize(vcsUiApp: VcsUiApp, initialState): void {
       app = vcsUiApp;
       app.callbackClassRegistry.registerClass(
         this[moduleIdSymbol],
@@ -118,16 +94,35 @@ export default function shadowPlugin(): ShadowPlugin {
         },
         name,
       );
-      return Promise.resolve();
+
+      if (initialState) {
+        const parsedInitialState = parsePluginState(initialState);
+        Object.assign(state, parsedInitialState);
+        if (app.maps.activeMap) {
+          setup?.activate(false);
+        } else {
+          mapActivatedListener = app.maps.mapActivated.addEventListener(() => {
+            setup?.activate(false);
+            mapActivatedListener?.();
+            mapActivatedListener = undefined;
+          });
+        }
+      }
     },
-    activate(): void {
-      setup?.activate();
+    get active(): boolean {
+      return !!setup?.action.active;
+    },
+    activate(showWindow = true): void {
+      setup?.activate(showWindow);
     },
     deactivate(): void {
       setup?.deactivate();
     },
     getDefaultOptions(): ShadowConfig {
       return {};
+    },
+    getState(forUrl): ShadowState | ShadowUrlState {
+      return getPluginState(this, forUrl);
     },
     toJSON(): ShadowConfig {
       return {};
@@ -205,6 +200,7 @@ export default function shadowPlugin(): ShadowPlugin {
       }
       setup?.destroy();
       mapChangedListener?.();
+      mapActivatedListener?.();
     },
   };
 }

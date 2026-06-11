@@ -230,7 +230,7 @@
 
       const stopAnimation = (): void => {
         state.animate = false;
-        state.endDate = null;
+        state.endDate = undefined;
         startAnimationTime = undefined;
         startLocalJulianDate = undefined;
       };
@@ -252,7 +252,12 @@
               if (!startLocalJulianDate) {
                 startLocalJulianDate = JulianDate.clone(localJulianDate.value);
               }
-              if (shouldAdvance(localJulianDate.value, state.endDate!)) {
+              if (
+                shouldAdvance(
+                  localJulianDate.value,
+                  JulianDate.fromIso8601(state.endDate!),
+                )
+              ) {
                 const currentDate = getNextTime(
                   startAnimationTime,
                   startLocalJulianDate,
@@ -289,7 +294,7 @@
           1,
           new JulianDate(),
         );
-        state.endDate = state.endDate ?? calculateEndDate;
+        state.endDate = state.endDate ?? calculateEndDate.toString();
       };
       const animateYear = (): void => {
         prepAnimation();
@@ -299,7 +304,7 @@
           365,
           new JulianDate(),
         );
-        state.endDate = state.endDate ?? calculateEndDate;
+        state.endDate = state.endDate ?? calculateEndDate.toString();
       };
       const setTime = (event: FocusEvent): void => {
         const { value, id } = event.target as HTMLInputElement;

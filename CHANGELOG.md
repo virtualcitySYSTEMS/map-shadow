@@ -1,3 +1,9 @@
+# v3.1.1
+
+- add `getState` to plugin API
+- change keys of `ShadowUrlState` to be shorter for URL
+- change type of date/time values of state to be always `string`
+
 # v3.1.0
 
 - Added `ActivateShadowCallback` and `DeactivateShadowCallback` to activate and deactivate the Shadow tool via the VcsCallback system

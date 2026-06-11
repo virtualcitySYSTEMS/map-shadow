@@ -7,10 +7,10 @@ import { TimeUnits } from './constants.js';
 /** initializes shadow and clockRange */
 export function activateShadow(
   app: VcsUiApp,
-  timeOnClose: JulianDate,
+  timeOnClose: string,
   closeCallback: () => void,
 ): {
-  originalTime: JulianDate;
+  originalTime: string;
   shadowMap: ShadowMap;
   destroy: () => void;
   clock: Clock;
@@ -19,11 +19,11 @@ export function activateShadow(
   map.setDefaultShadowMap();
   const cesiumWidget = map.getCesiumWidget()!;
   const { clock } = cesiumWidget;
-  const originalTime = Object.assign(clock.currentTime);
+  const originalTime = clock.currentTime.toString();
   const { shadowMap } = map.getScene()!;
   shadowMap.enabled = true;
   if (timeOnClose) {
-    clock.currentTime = timeOnClose;
+    clock.currentTime = JulianDate.fromIso8601(timeOnClose);
   }
   const shadowMapChangedListener = map.shadowMapChanged.addEventListener(() => {
     closeCallback();
@@ -37,16 +37,16 @@ export function activateShadow(
 export function deactivateShadow(
   app: VcsUiApp,
   shadowMap: ShadowMap,
-  originalTime: JulianDate,
-): { timeOnClose: JulianDate } {
+  originalTime: string,
+): { timeOnClose: string } {
   const map = app.maps.activeMap as CesiumMap;
   const cesiumWidget = map.getCesiumWidget()!;
   if (shadowMap) {
     shadowMap.enabled = false;
   }
-  const timeOnClose = cesiumWidget.clock.currentTime;
+  const timeOnClose = cesiumWidget.clock.currentTime.toString();
   if (originalTime) {
-    cesiumWidget.clock.currentTime = originalTime;
+    cesiumWidget.clock.currentTime = JulianDate.fromIso8601(originalTime);
   }
   return { timeOnClose };
 }

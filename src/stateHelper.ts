@@ -1,46 +1,144 @@
-import { JulianDate } from '@vcmap-cesium/engine';
-import type { ShadowState } from './index.js';
 import { TimeUnits } from './constants.js';
+import type { ShadowPlugin } from './index.js';
 
-export type ShadowUrlState = {
+export type ShadowState = {
+  /**
+   * Baseline ISO 8601 time captured when the shadow simulation is first activated.
+   * Used to restore the original map time when the tool is fully torn down.
+   */
   originalTime?: string;
+  /**
+   * Last clock  ISO 8601 time when the tool was closed/deactivated.
+   * Used to resume from the previous position on the next activation.
+   */
   timeOnClose?: string;
-  animate?: boolean;
-  duration?: number;
-  timeUnit?: TimeUnits;
+  /**
+   * Indicates whether the automatic shadow animation is currently running.
+   */
+  animate: boolean;
+  /**
+   * Total duration of one animation cycle in the currently selected time unit.
+   */
+  duration: number;
+  /**
+   * Time unit used for animation and duration interpretation (e.g. day or year).
+   */
+  timeUnit: TimeUnits;
+  /**
+   * Target  ISO 8601 time for the current animation run.
+   * Once reached, animation stops and the state is reset.
+   */
   endDate?: string;
 };
 
-export function parseUrlPluginState(
-  state: ShadowState | ShadowUrlState | undefined,
-): ShadowState {
-  const parsed: ShadowState = {
-    originalTime: null,
-    timeOnClose: null,
-    endDate: null,
-    animate: state?.animate ?? false,
-    duration: state?.duration ?? 10,
-    timeUnit: state?.timeUnit ?? TimeUnits.Days,
-  };
+export type ShadowUrlState = {
+  /** originalTime */
+  ot?: string;
+  /** timeOnClose */
+  toc?: string;
+  /** animate */
+  a?: boolean;
+  /** duration */
+  d?: number;
+  /** timeUnit */
+  tu?: TimeUnits;
+  /** endDate */
+  ed?: string;
+};
 
-  if (state?.originalTime) {
-    parsed.originalTime =
-      state.originalTime instanceof JulianDate
-        ? state.originalTime
-        : JulianDate.fromIso8601(state.originalTime);
+export function getDefaultState(): ShadowState {
+  return {
+    animate: false,
+    duration: 10,
+    timeUnit: TimeUnits.Days,
+  };
+}
+
+function isShadowUrlState(
+  state: ShadowState | ShadowUrlState,
+): state is ShadowUrlState {
+  if (
+    'ot' in state ||
+    'toc' in state ||
+    'a' in state ||
+    'd' in state ||
+    'tu' in state ||
+    'ed' in state
+  ) {
+    return true;
+  } else {
+    return false;
   }
-  if (state?.timeOnClose) {
-    parsed.timeOnClose =
-      state.timeOnClose instanceof JulianDate
-        ? state.timeOnClose
-        : JulianDate.fromIso8601(state.timeOnClose);
+}
+
+export function parsePluginState(
+  state?: ShadowState | ShadowUrlState,
+): ShadowState {
+  const parsed = getDefaultState();
+  if (!state) {
+    return parsed;
   }
-  if (state?.endDate) {
-    parsed.endDate =
-      state.endDate instanceof JulianDate
-        ? state.endDate
-        : JulianDate.fromIso8601(state.endDate);
+  if (!isShadowUrlState(state)) {
+    return { ...parsed, ...state };
+  }
+
+  if (state.ot) {
+    parsed.originalTime = state.ot;
+  }
+  if (state.toc) {
+    parsed.timeOnClose = state.toc;
+  }
+  if (state.a) {
+    parsed.animate = state.a;
+  }
+  if (state.d) {
+    parsed.duration = state.d;
+  }
+  if (state.tu) {
+    parsed.timeUnit = state.tu;
+  }
+  if (state.ed) {
+    parsed.endDate = state.ed;
   }
 
   return parsed;
+}
+
+export function getPluginState(
+  plugin: ShadowPlugin,
+  forUrl?: boolean,
+): ShadowState | ShadowUrlState {
+  const { state, clock, active } = plugin;
+  if (!active) {
+    return {};
+  }
+  if (forUrl) {
+    const urlState: ShadowUrlState = {
+      a: state.animate,
+      d: state.duration,
+      tu: state.timeUnit,
+    };
+    if (state.originalTime !== undefined) {
+      urlState.ot = state.originalTime;
+    }
+    if (state.endDate !== undefined) {
+      urlState.ed = state.endDate;
+    }
+    urlState.toc = clock?.currentTime.toString();
+    return urlState;
+  } else {
+    const configState: ShadowState = {
+      animate: state.animate,
+      duration: state.duration,
+      timeUnit: state.timeUnit,
+    };
+    if (state.originalTime !== undefined) {
+      configState.originalTime = state.originalTime;
+    }
+    if (state.endDate !== undefined) {
+      configState.endDate = state.endDate;
+    }
+    state.timeOnClose = clock?.currentTime.toString();
+    return configState;
+  }
 }
