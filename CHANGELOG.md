@@ -1,3 +1,8 @@
+# v3.3.0
+
+- add `activeOnStartup` config option to activate the shadow tool automatically on startup when no saved state is present
+- add a config editor for the `activeOnStartup` option
+
 # v3.2.0
 
 - add `getState` to plugin API

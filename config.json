@@ -1,3 +1,4 @@
 {
-  "name": "@vcmap/shadow"
+  "name": "@vcmap/shadow",
+  "activeOnStartup": true
 }

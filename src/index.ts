@@ -15,8 +15,18 @@ import {
   type ShadowState,
   type ShadowUrlState,
 } from './stateHelper.js';
+import ShadowConfigEditor from './ShadowConfigEditor.vue';
 
-type ShadowConfig = Record<never, never>;
+export type ShadowConfig = {
+  /** if true, the shadow tool is activated on startup when no initial state is present */
+  activeOnStartup?: boolean;
+};
+
+export function getDefaultOptions(): ShadowConfig {
+  return {
+    activeOnStartup: false,
+  };
+}
 
 export type ShadowPlugin = VcsPlugin<
   ShadowConfig,
@@ -33,7 +43,7 @@ export type ShadowPlugin = VcsPlugin<
 
 const state = reactive<ShadowState>(getDefaultState());
 
-export default function shadowPlugin(): ShadowPlugin {
+export default function shadowPlugin(config: ShadowConfig): ShadowPlugin {
   let app: VcsUiApp;
   let setup: ReturnType<typeof setupToolActions> | undefined;
   let mapChangedListener: (() => void) | undefined;
@@ -98,11 +108,14 @@ export default function shadowPlugin(): ShadowPlugin {
       if (initialState) {
         const parsedInitialState = parsePluginState(initialState);
         Object.assign(state, parsedInitialState);
+      }
+      if (initialState || config.activeOnStartup) {
+        const showWindow = !initialState;
         if (app.maps.activeMap) {
-          setup?.activate(false);
+          setup?.activate(showWindow);
         } else {
           mapActivatedListener = app.maps.mapActivated.addEventListener(() => {
-            setup?.activate(false);
+            setup?.activate(showWindow);
             mapActivatedListener?.();
             mapActivatedListener = undefined;
           });
@@ -119,13 +132,17 @@ export default function shadowPlugin(): ShadowPlugin {
       setup?.deactivate();
     },
     getDefaultOptions(): ShadowConfig {
-      return {};
+      return getDefaultOptions();
     },
     getState(forUrl): ShadowState | ShadowUrlState {
       return getPluginState(this, forUrl);
     },
     toJSON(): ShadowConfig {
-      return {};
+      const options: ShadowConfig = {};
+      if (config.activeOnStartup) {
+        options.activeOnStartup = config.activeOnStartup;
+      }
+      return options;
     },
     i18n: {
       en: {
@@ -148,6 +165,11 @@ export default function shadowPlugin(): ShadowPlugin {
           hoursFormat: 'Hour of day (00 to 23)',
           minutesFormat: 'Minutes of day (00 to 59)',
           timePickerSelectHint: 'Select the',
+          editor: {
+            title: 'Shadow Tool Editor',
+            general: 'General settings',
+            activeOnStartup: 'Activate automatically on startup',
+          },
         },
       },
       de: {
@@ -170,11 +192,25 @@ export default function shadowPlugin(): ShadowPlugin {
           hoursFormat: 'Stunden (00 bis 23)',
           minutesFormat: 'Minuten (00 bis 59)',
           timePickerSelectHint: 'Wählen Sie die',
+          editor: {
+            title: 'Schatten-Werkzeug Editor',
+            general: 'Allgemeine Einstellungen',
+            activeOnStartup: 'Beim Start automatisch aktivieren',
+          },
         },
       },
     },
     getConfigEditors(): PluginConfigEditor<object>[] {
-      return [];
+      return [
+        {
+          component: ShadowConfigEditor,
+          title: 'shadow.editor.title',
+          infoUrlCallback: app?.getHelpUrlCallback(
+            '/components/plugins/shadowConfig.html',
+            'app-configurator',
+          ),
+        },
+      ];
     },
     destroy(): void {
       if (app) {
@@ -198,6 +234,7 @@ export default function shadowPlugin(): ShadowPlugin {
       if (app?.windowManager.has(windowId)) {
         app.windowManager.remove(windowId);
       }
+      setup?.deactivate();
       setup?.destroy();
       mapChangedListener?.();
       mapActivatedListener?.();

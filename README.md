@@ -4,6 +4,14 @@
 
 The Shadow tool can be used to control the time and date settings of the 3D Cesium map for shadow calculations.
 
+## Configuration
+
+The `ShadowConfig` contains the following options:
+
+| property        | type    | default | description                                                                                     |
+| --------------- | ------- | ------- | ----------------------------------------------------------------------------------------------- |
+| activeOnStartup | boolean | false   | Whether the shadow tool is activated automatically on startup when no initial state is present. |
+
 ## API
 
 The Shadow plugin can be accessed via the `VcsUiApp`:
