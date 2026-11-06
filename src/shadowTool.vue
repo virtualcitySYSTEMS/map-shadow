@@ -239,9 +239,10 @@
         if (plugin.removeOnTickListener) {
           plugin.removeOnTickListener();
         }
+        const now = new Date();
         const clockDate = JulianDate.toDate(clock.currentTime);
-        clockDate.setFullYear(new Date().getFullYear());
-        clock.currentTime = JulianDate.fromDate(clockDate);
+        clockDate.setFullYear(now.getFullYear(), now.getMonth(), now.getDate());
+        setLocalJulianDate(JulianDate.fromDate(clockDate));
 
         plugin.removeOnTickListener = clock.onTick.addEventListener(
           (newTime) => {
